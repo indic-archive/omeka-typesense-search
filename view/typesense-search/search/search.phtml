@@ -1,0 +1,16 @@
+<?php
+
+?>
+
+<div>
+    <p>Showing results for "<?php echo $this->escapeHtml($results['request_params']['q']); ?>"</p>
+    <?php if (empty($results['hits'])) : ?>
+        <p>Your query returned no results</p>
+    <?php else: ?>
+        <?php foreach ($results['hits'] as $key => $value) : ?>
+            <p> Title: <?php echo $this->escapeHtml($value['document']['title']) ?> </p>
+            <p> Topics: <?php echo $this->escapeHtml($value['document']['topics']) ?> </p>
+            <p> Publisher: <?php echo $this->escapeHtml($value['document']['publisher']) ?> </p>
+        <?php endforeach; ?>
+    <?php endif; ?>
+</div>
