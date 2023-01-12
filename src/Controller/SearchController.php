@@ -7,7 +7,7 @@ namespace TypesenseSearch\Controller;
 use Typesense\Client;
 use Symfony\Component\HttpClient\HttplugClient;
 use Laminas\Mvc\Controller\AbstractActionController;
-use Laminas\View\Model\ViewModel;
+use Laminas\View\Model\JsonModel;
 
 class SearchController extends AbstractActionController
 {
@@ -40,9 +40,9 @@ class SearchController extends AbstractActionController
                 'query_by' => 'title',
             ],
         );
-        var_dump($results['hits']);
+        //var_dump($results['hits']);
 
-        return new ViewModel([
+        return new JsonModel([
             'results' => $results,
         ]);
     }

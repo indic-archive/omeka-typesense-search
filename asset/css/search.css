@@ -1,0 +1,23 @@
+#search {
+  left: 0 !important;
+}
+
+.ac__inner{
+  background: #f6f6f6;
+}
+
+/* Individual word element */
+.ac__word{
+  margin: 0;
+  padding: 5px;
+}
+
+/* Word prefix style. It’s the span containing the search keyword within the word. */
+.ac__prefix{
+  font-weight: bold;
+}
+
+/* Style applied to each words while navigating through the list or on hover */
+.ac__word--selected, .ac__word:hover{
+  background-color: #e3e3e3;
+}

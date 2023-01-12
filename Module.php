@@ -11,9 +11,9 @@ if (!class_exists(\Generic\AbstractModule::class)) {
 }
 
 use Generic\AbstractModule;
-// use Laminas\EventManager\Event;
+use Laminas\EventManager\Event;
 use Laminas\Mvc\MvcEvent;
-// use Laminas\EventManager\SharedEventManagerInterface;
+use Laminas\EventManager\SharedEventManagerInterface;
 use Omeka\Module\Exception\ModuleCannotInstallException;
 
 
@@ -45,20 +45,27 @@ class Module extends AbstractModule
         }
     }
 
-    // public function attachListeners(SharedEventManagerInterface $sharedEventManager)
-    // {
-    //     $sharedEventManager->attach(
-    //         '*',
-    //         'view.layout',
-    //         [$this, 'addTypesense']
-    //     );
-    // }
+    public function attachListeners(SharedEventManagerInterface $sharedEventManager)
+    {
+        $sharedEventManager->attach(
+            '*',
+            'view.layout',
+            [$this, 'addTypesense']
+        );
+    }
 
-    // public function addTypesense(Event $event): void
-    // {
-    //     $view = $event->getTarget();
-    //     $assetUrl = $view->plugin('assetUrl');
-    //     $view->headScript()
-    //         ->appendFile($assetUrl('js/typesense.min.js', 'TypesenseSearch'), 'text/javascript', ['defer' => 'defer']);
-    // }
+    public function addTypesense(Event $event): void
+    {
+        $view = $event->getTarget();
+        $assetUrl = $view->plugin('assetUrl');
+        $view->headScript()
+            ->appendFile($assetUrl('js/autocomplete.js', 'TypesenseSearch'), 'text/javascript');
+        $view->headScript()
+            ->appendFile($assetUrl('js/search.js', 'TypesenseSearch'), 'text/javascript');
+
+        $view->headLink()
+            ->appendStylesheet($assetUrl('css/flex-kebab.css', 'TypesenseSearch'));
+        $view->headLink()
+            ->appendStylesheet($assetUrl('css/search.css', 'TypesenseSearch'));
+    }
 }
