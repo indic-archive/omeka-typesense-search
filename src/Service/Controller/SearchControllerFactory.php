@@ -20,7 +20,12 @@ class SearchControllerFactory implements FactoryInterface
             'protocol' => $settings->get('typesense_protocol', 'http'),
             'port' => $settings->get('typesense_port', '8108'),
             'api_key' => $settings->get('typesense_api_key'),
+            'search_index' => $settings->get('typesense_search_index'),
         ];
+
+        if (empty($parameters['search_index'])) {
+            throw new ConfigException('Search index is required.');
+        }
 
         if (empty($parameters['host']) || empty($parameters['api_key'])) {
             throw new ConfigException('Host, API Key are required.');

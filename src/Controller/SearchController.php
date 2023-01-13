@@ -9,10 +9,24 @@ use Symfony\Component\HttpClient\HttplugClient;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 
+/**
+ * Controller for search action that returns a json response.
+ */
 class SearchController extends AbstractActionController
 {
+    /**
+     * @var Client
+     */
     protected $client;
 
+    /**
+     * @var Index
+     */
+    protected $indexName;
+
+    /**
+     * @param array $parameters typesense configurations.
+     */
     public function __construct(array $parameters)
     {
         $this->client = new Client(
@@ -28,13 +42,17 @@ class SearchController extends AbstractActionController
                 'client' => new HttplugClient(),
             ]
         );
+        $this->indexName = $parameters['search_index'];
     }
 
+    /**
+     * Search the query param in the index and return json response.
+     */
     public function searchAction()
     {
         $searchQ = $this->params()->fromQuery('query');
 
-        $results = $this->client->collections['books']->documents->search(
+        $results = $this->client->collections[$this->indexName]->documents->search(
             [
                 'q' => $searchQ,
                 'query_by' => 'title',

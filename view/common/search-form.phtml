@@ -1,11 +1,10 @@
 <?php
-$searchAction = $this->url('site/search', ['controller' => 'SearchController', 'action' => 'search'], true);
 ?>
 
 <!-- this overrides the default search -->
 <div class="twelve columns">
-    <form class="search-input-grp" action="<?php echo $this->escapeHtml($searchAction); ?>" id="search-form">
-        <input id="search-text" type="text" name="query" autofocus>
+    <form>
+        <input class="search-text" type="text" autofocus>
         <button type="submit"><?php echo 'Search'; ?></button>
     </form>
 </div>

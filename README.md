@@ -66,3 +66,7 @@ The configuration form for this module allows you to specify the following optio
 ## Usage
 
 Once the module is installed and configured, search on your Omeka-s site will be powered by Typesense.
+
+
+## Credits
+- Carlos Roso - https://github.com/caroso1222/amazon-autocomplete. This repo's autocomplete.js is a modified version of his work.

@@ -58,6 +58,18 @@ class ConfigForm extends Form
                     'id' => 'typesense_api_key',
                     'required' => true,
                 ],
+            ])
+
+            ->add([
+                'type' => Element\Text::class,
+                'name' => 'typesense_search_index',
+                'options' => [
+                    'label' => 'Typesense Search Index',
+                ],
+                'attributes' => [
+                    'id' => 'typesense_search_index',
+                    'required' => true,
+                ],
             ]);
 
         $this->getInputFilter()
@@ -75,6 +87,10 @@ class ConfigForm extends Form
             ])
             ->add([
                 'name' => 'typesense_api_key',
+                'required' => true,
+            ])
+            ->add([
+                'name' => 'typesense_search_index',
                 'required' => true,
             ]);
     }

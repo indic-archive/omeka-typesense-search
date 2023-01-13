@@ -1,5 +1,6 @@
 /**
  * @author Carlos Roso <ce.roso398@gmail.com>
+ * @author Joe Paul <joeirimpan@gmail.com>
  */
 
 (function (window, document, undefined) {
@@ -80,12 +81,14 @@
   /**
    * Hide widget when clicked outside the search field or the words container
    */
-  document.body.addEventListener("click", (evt) => {
-    if (!evt.AutocompleteClicked) {
-      let elems = document.querySelectorAll(".ac__container--hide-on-blur");
-      var elemsArr = Array.prototype.slice.call(elems);
-      elemsArr.forEach((elem) => (elem.style.display = "none"));
-    }
+  window.addEventListener("load", function () {
+    document.body.addEventListener("click", (evt) => {
+      if (!evt.AutocompleteClicked) {
+        let elems = document.querySelectorAll(".ac__container--hide-on-blur");
+        var elemsArr = Array.prototype.slice.call(elems);
+        elemsArr.forEach((elem) => (elem.style.display = "none"));
+      }
+    });
   });
 
   //---------------------------------------------//
@@ -124,8 +127,6 @@
     let container = document.createElement("div");
     container.className = "ac__container";
     container.style.width = this._input.offsetWidth;
-    // container.style.position = "relative";
-    container.style.marginTop = this._input.offsetHeight;
     this._input.parentNode.insertBefore(container, this._input.nextSibling);
     let inner = document.createElement("div");
     inner.className = "ac__inner";
@@ -299,7 +300,6 @@
       if (http.readyState == 4) {
         var response = {};
         if (http.responseText) response = JSON.parse(http.responseText);
-        console.log(response);
         if (this.status == 200) {
           if (self._config.showWords) {
             var query = response.results.request_params.q;

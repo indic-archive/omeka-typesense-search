@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace TypesenseSearch;
 
 use Laminas\Router\Http\Literal;
-use Laminas\ServiceManager\Factory\InvokableFactory;
 
 return [
     'view_manager' => [
@@ -13,12 +12,14 @@ return [
             dirname(__DIR__) . '/view',
         ],
         'strategies' => [
+            # makes it possible to return json in api response.
             'ViewJsonStrategy',
         ],
     ],
 
     'form_elements' => [
         'invokables' => [
+            # module configuration form
             Form\ConfigForm::class => Form\ConfigForm::class,
         ],
     ],
@@ -33,7 +34,8 @@ return [
                             'route' => '/search',
                             'defaults' => [
                                 '__NAMESPACE__' => 'TypesenseSearch\Controller',
-                                'controller' => Controller\SearchController::class, // unique name
+                                # attach SearchController to /search route with default action as `search`
+                                'controller' => Controller\SearchController::class,
                                 'action'     => 'search',
                             ],
                         ],
@@ -45,6 +47,7 @@ return [
 
     'controllers' => [
         'factories' => [
+            # Since settings cannot be accessed in a regular AbstractActionController, we create this instance using a factory class.
             Controller\SearchController::class => Service\Controller\SearchControllerFactory::class,
         ]
     ],
@@ -55,6 +58,7 @@ return [
             'typesense_protocol' => null,
             'typesense_port' => null,
             'typesense_api_key' => null,
+            'typesense_search_index' => null,
         ],
     ],
 ];

@@ -1,3 +1,6 @@
 $(document).ready(function () {
-  Autocomplete("#search-text");
+  Autocomplete({
+    selector: ".search-text",
+    delay: 200,
+  });
 });

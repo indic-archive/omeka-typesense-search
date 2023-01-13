@@ -54,18 +54,31 @@ class Module extends AbstractModule
         );
     }
 
+    function assetPath($filename)
+    {
+        $manifest_path = __DIR__ . '/rev-manifest.json';
+
+        if (file_exists($manifest_path)) {
+            $manifest = json_decode(file_get_contents($manifest_path), TRUE);
+        } else {
+            $manifest = [];
+        }
+
+        if (array_key_exists($filename, $manifest)) {
+            return $manifest[$filename];
+        }
+
+        return $filename;
+    }
+
     public function addTypesense(Event $event): void
     {
         $view = $event->getTarget();
         $assetUrl = $view->plugin('assetUrl');
         $view->headScript()
-            ->appendFile($assetUrl('js/autocomplete.js', 'TypesenseSearch'), 'text/javascript');
-        $view->headScript()
-            ->appendFile($assetUrl('js/search.js', 'TypesenseSearch'), 'text/javascript');
+            ->appendFile($assetUrl('public/' . $this->assetPath('bundle.js'), 'TypesenseSearch'), 'text/javascript');
 
         $view->headLink()
-            ->appendStylesheet($assetUrl('css/flex-kebab.css', 'TypesenseSearch'));
-        $view->headLink()
-            ->appendStylesheet($assetUrl('css/search.css', 'TypesenseSearch'));
+            ->appendStylesheet($assetUrl('public/' . $this->assetPath('stylesheet.css'), 'TypesenseSearch'));
     }
 }
