@@ -307,6 +307,9 @@
         if (http.responseText) response = JSON.parse(http.responseText);
         if (this.status == 200) {
           if (self._config.showWords) {
+            if (response.results.length == 0) {
+              return;
+            }
             var query = response.results.request_params.q;
             var hits = response.results.hits;
             _paintWords.call(self, query, hits);

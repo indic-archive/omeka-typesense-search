@@ -52,6 +52,12 @@ class SearchController extends AbstractActionController
     {
         $searchQ = $this->params()->fromQuery('query');
 
+        if ($searchQ == "*") {
+            return new JsonModel([
+                'results' => [],
+            ]);
+        }
+
         $results = $this->client->collections[$this->indexName]->documents->search(
             [
                 'q' => $searchQ,
