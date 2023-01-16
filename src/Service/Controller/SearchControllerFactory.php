@@ -10,8 +10,16 @@ use Laminas\ServiceManager\Factory\FactoryInterface;
 use Omeka\File\Exception\ConfigException;
 
 
+/**
+ * Factory class for instantiating SearchController from settings.
+ */
 class SearchControllerFactory implements FactoryInterface
 {
+    /**
+     * Create a new instance of SearchController from settings and return it.
+     *
+     * @return SearchController
+     */
     public function __invoke(ContainerInterface $services, $requestedName, array $options = null)
     {
         $settings = $services->get('Omeka\Settings');

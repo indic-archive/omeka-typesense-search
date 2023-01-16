@@ -295,7 +295,7 @@
   function _getSuggestions(prefix) {
     var self = this;
     var http = new XMLHttpRequest();
-    http.open("GET", "/omeka/s/bookshelf/search?query=" + prefix, true);
+    http.open("GET", "/omeka/main/search?query=" + prefix, true);
     http.onreadystatechange = function () {
       if (http.readyState == 4) {
         var response = {};

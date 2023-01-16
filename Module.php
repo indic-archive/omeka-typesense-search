@@ -32,6 +32,10 @@ class Module extends AbstractModule
 
         // load vendor sdk (eg., typesense-php)
         require_once __DIR__ . '/vendor/autoload.php';
+
+        // allow this controller for all users.
+        $acl = $this->getServiceLocator()->get('Omeka\Acl');
+        $acl->allow(null, 'TypesenseSearch\Controller\SearchController');
     }
 
     protected function preInstall(): void
@@ -50,16 +54,19 @@ class Module extends AbstractModule
         $sharedEventManager->attach(
             '*',
             'view.layout',
-            [$this, 'addTypesense']
+            [$this, 'addSearchAssets']
         );
     }
 
-    function assetPath($filename)
+    /**
+     * Get asset revision path based on the gulp-rev manifest.
+     */
+    protected function assetRevPath($filename)
     {
-        $manifest_path = __DIR__ . '/rev-manifest.json';
+        $manifestPath = __DIR__ . '/rev-manifest.json';
 
-        if (file_exists($manifest_path)) {
-            $manifest = json_decode(file_get_contents($manifest_path), TRUE);
+        if (file_exists($manifestPath)) {
+            $manifest = json_decode(file_get_contents($manifestPath), TRUE);
         } else {
             $manifest = [];
         }
@@ -71,14 +78,17 @@ class Module extends AbstractModule
         return $filename;
     }
 
-    public function addTypesense(Event $event): void
+    /**
+     * Adds search assets into all views.
+     */
+    public function addSearchAssets(Event $event): void
     {
         $view = $event->getTarget();
         $assetUrl = $view->plugin('assetUrl');
         $view->headScript()
-            ->appendFile($assetUrl('public/' . $this->assetPath('bundle.js'), 'TypesenseSearch'), 'text/javascript');
+            ->appendFile($assetUrl('public/' . $this->assetRevPath('bundle.js'), 'TypesenseSearch'), 'text/javascript');
 
         $view->headLink()
-            ->appendStylesheet($assetUrl('public/' . $this->assetPath('stylesheet.css'), 'TypesenseSearch'));
+            ->appendStylesheet($assetUrl('public/' . $this->assetRevPath('stylesheet.css'), 'TypesenseSearch'));
     }
 }
