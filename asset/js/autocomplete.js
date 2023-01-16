@@ -272,7 +272,12 @@
       let resultElement = document.createElement("span");
       resultElement.style.pointerEvents = "none";
 
-      highlighted = hits[i].highlights[0].snippet;
+      if (hits[i].highlights[0].snippet) {
+        highlighted = hits[i].highlights[0].snippet;
+      } else {
+        highlighted = hits[i].highlights[0].snippets[0];
+      }
+
       highlighted = highlighted.replace(/<mark>/g, "<b>");
       highlighted = highlighted.replace(/<\/mark>/g, "</b>");
 

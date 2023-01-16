@@ -43,10 +43,19 @@ document = {
   client.collections['books'].documents.create(document)
 ```
 
-- Install the Typesense PHP client library by running the following command:
+Or get the production data using sql script located in testdata/pull-items.sql and get a /tmp/data.csv. Import the same using the following script
+```bash
+python testdata/ts_helper.py create
+```
+
+- Install the dependencies
 
 ```bash
 composer install
+```
+
+```bash
+npm run minify
 ```
 
 - Copy this directory to omeka-s installation directory under `/var/www/html/omeka/modules`.
@@ -62,6 +71,8 @@ The configuration form for this module allows you to specify the following optio
 - Typesense Host: The hostname of your Typesense server.
 
 - API Key: The API key for your Typesense server. This can be found in the Typesense Admin Dashboard.
+
+- Search index: Name of the search index.
 
 ## Usage
 

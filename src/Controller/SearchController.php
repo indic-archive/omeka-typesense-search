@@ -55,7 +55,13 @@ class SearchController extends AbstractActionController
         $results = $this->client->collections[$this->indexName]->documents->search(
             [
                 'q' => $searchQ,
-                'query_by' => 'title',
+                'query_by' => 'dcterms_title,dcterms_alternative,dcterms_creator,dcterms_subject,dcterms_abstract,dcterms_publisher',
+                'query_by_weights' => '5,5,2,1,1,1',
+                'highlight_full_fields' => 'dcterms_title',
+                'page' => 1,
+                'per_page' => 15,
+                'infix' => 'fallback',
+                //'sort_by' => 'dcterms_issued:desc',
             ],
         );
         //var_dump($results['hits']);

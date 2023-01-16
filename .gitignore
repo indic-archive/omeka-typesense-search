@@ -13,5 +13,5 @@
 composer.phar
 debug.log
 NOTES.md
-dump_backup.sql
 /asset/public/*
+rev-manifest.json
