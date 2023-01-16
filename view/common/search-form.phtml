@@ -3,7 +3,7 @@
 
 <!-- this overrides the default search -->
 <div class="twelve columns">
-    <form>
+    <form id="search-form" onsubmit="event.preventDefault();">
         <input class="search-text" type="text" autofocus>
         <button type="submit"><?php echo 'Search'; ?></button>
     </form>

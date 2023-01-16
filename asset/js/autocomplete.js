@@ -145,7 +145,7 @@
    * @returns
    */
   function _getStringFromWordElement(wordElement) {
-    return wordElement.firstChild.innerHTML + wordElement.lastChild.textContent;
+    return wordElement.firstChild.dataset.identifier;
   }
 
   /**
@@ -271,6 +271,7 @@
       wordElement.style.cursor = "pointer";
       let resultElement = document.createElement("span");
       resultElement.style.pointerEvents = "none";
+      resultElement.dataset.identifier = hits[i].document.dcterms_identifier[0];
 
       if (hits[i].highlights[0].snippet) {
         highlighted = hits[i].highlights[0].snippet;
