@@ -3,10 +3,12 @@ import concat from "gulp-concat";
 import minify from "gulp-minify";
 import cleanCss from "gulp-clean-css";
 import rev from "gulp-rev";
+import { deleteSync } from "del";
 
 gulp.task(
   "pack-js",
   gulp.series(function () {
+    deleteSync(["asset/public/*.js"]);
     return gulp
       .src(["asset/js/autocomplete.js", "asset/js/search.js"])
       .pipe(concat({ path: "bundle.js", cwd: "" }))
@@ -33,6 +35,7 @@ gulp.task(
 gulp.task(
   "pack-css",
   gulp.series(function () {
+    deleteSync(["asset/public/*.css"]);
     return gulp
       .src(["asset/css/flex-kebab.css", "asset/css/search.css"])
       .pipe(concat({ path: "stylesheet.css", cwd: "" }))
@@ -49,4 +52,11 @@ gulp.task(
   })
 );
 
-gulp.task("default", gulp.series("pack-js", "pack-css"));
+gulp.task("watch", function () {
+  gulp.watch(
+    ["asset/js/*.js", "asset/css/*.css"],
+    gulp.series("pack-js", "pack-css")
+  );
+});
+
+gulp.task("default", gulp.series("pack-js", "pack-css", "watch"));

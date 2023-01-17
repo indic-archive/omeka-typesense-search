@@ -273,6 +273,7 @@
       resultElement.style.pointerEvents = "none";
       resultElement.dataset.identifier = hits[i].document.dcterms_identifier[0];
 
+      let highlighted = "";
       if (hits[i].highlights[0].snippet) {
         highlighted = hits[i].highlights[0].snippet;
       } else {
@@ -281,6 +282,16 @@
 
       highlighted = highlighted.replace(/<mark>/g, "<b>");
       highlighted = highlighted.replace(/<\/mark>/g, "</b>");
+
+      let field = hits[i].highlights[0].field;
+      if (field !== "dcterms_title") {
+        field = field.replace("dcterms_", "");
+        field = field.charAt(0).toUpperCase() + field.slice(1);
+        highlighted = field + ": " + highlighted;
+        if (hits[i].document.dcterms_title.length > 0) {
+          highlighted = hits[i].document.dcterms_title[0] + " | " + highlighted;
+        }
+      }
 
       highlighted = highlighted.trim();
       resultElement.innerHTML = highlighted;
