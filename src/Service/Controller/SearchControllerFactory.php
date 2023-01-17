@@ -29,6 +29,7 @@ class SearchControllerFactory implements FactoryInterface
             'port' => $settings->get('typesense_port', '8108'),
             'api_key' => $settings->get('typesense_api_key'),
             'search_index' => $settings->get('typesense_search_index'),
+            'index_properties' => $settings->get('typesense_index_properties'),
         ];
 
         if (empty($parameters['search_index'])) {

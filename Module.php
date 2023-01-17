@@ -13,6 +13,8 @@ if (!class_exists(\Generic\AbstractModule::class)) {
 use Generic\AbstractModule;
 use Laminas\EventManager\Event;
 use Laminas\Mvc\MvcEvent;
+use Laminas\Mvc\Controller\AbstractController;
+use Laminas\View\Renderer\PhpRenderer;
 use Laminas\EventManager\SharedEventManagerInterface;
 use Omeka\Module\Exception\ModuleCannotInstallException;
 
@@ -90,5 +92,79 @@ class Module extends AbstractModule
 
         $view->headLink()
             ->appendStylesheet($assetUrl('public/' . $this->assetRevPath('stylesheet.css'), 'TypesenseSearch'));
+    }
+
+    public function handleConfigForm(AbstractController $controller)
+    {
+        $config = $this->getConfig();
+        $space = strtolower(static::NAMESPACE);
+        if (empty($config[$space]['config'])) {
+            return true;
+        }
+
+        $services = $this->getServiceLocator();
+        $formManager = $services->get('FormElementManager');
+        $formClass = static::NAMESPACE . '\Form\ConfigForm';
+        if (!$formManager->has($formClass)) {
+            return true;
+        }
+
+        $params = $controller->getRequest()->getPost();
+
+        $form = $formManager->get($formClass);
+        $form->init();
+        $form->setData($params);
+        if (!$form->isValid()) {
+            $controller->messenger()->addErrors($form->getMessages());
+            return false;
+        }
+
+        $params = $form->getData();
+
+        $settings = $services->get('Omeka\Settings');
+        $defaultSettings = $config[$space]['config'];
+        $params = array_intersect_key($params, $defaultSettings);
+        foreach ($params as $name => $value) {
+            $settings->set($name, $value);
+        }
+
+        // Set index properties from the form post.
+        $indexProperties = $controller->params()->fromPost('index-properties', []);
+        $settings->set('typesense_index_properties', $indexProperties);
+
+        return true;
+    }
+
+    public function getConfigForm(PhpRenderer $renderer)
+    {
+        $services = $this->getServiceLocator();
+
+        $formManager = $services->get('FormElementManager');
+        $formClass = static::NAMESPACE . '\Form\ConfigForm';
+        if (!$formManager->has($formClass)) {
+            return '';
+        }
+
+        // Simplify config of modules.
+        $renderer->ckEditor();
+
+        $settings = $services->get('Omeka\Settings');
+
+        $this->initDataToPopulate($settings, 'config');
+
+        $data = $this->prepareDataToPopulate($settings, 'config');
+        if (is_null($data)) {
+            return '';
+        }
+
+        $form = $formManager->get($formClass);
+        $form->init();
+        $form->setData($data);
+        $form->prepare();
+        return $renderer->render('typesense-search/config-form', [
+            'data' => $data,
+            'form' => $form,
+            'indexProperties' => $data['typesense_index_properties'],
+        ]);
     }
 }

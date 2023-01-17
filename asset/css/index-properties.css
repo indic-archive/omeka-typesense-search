@@ -1,0 +1,7 @@
+#hide-properties-list .row {
+    display: flex;
+}
+
+p {
+    margin-top: 0;
+}

@@ -20,9 +20,14 @@ class SearchController extends AbstractActionController
     protected $client;
 
     /**
-     * @var Index
+     * @var string
      */
     protected $indexName;
+
+    /**
+     * @var array
+     */
+    protected $indexProperties;
 
     /**
      * @param array $parameters typesense configurations.
@@ -43,6 +48,7 @@ class SearchController extends AbstractActionController
             ]
         );
         $this->indexName = $parameters['search_index'];
+        $this->indexProperties = $parameters['index_properties'];
     }
 
     /**
@@ -58,11 +64,19 @@ class SearchController extends AbstractActionController
             ]);
         }
 
+        // convert [dcterms:title,dcterms:alternative] => 'dcterms_title,dcterms_alternative'
+        $result = array();
+        foreach ($this->indexProperties as $property) {
+            $result[] = str_replace(':', '_', $property);
+        }
+        $queryBy = implode(',', $result);
+
         $results = $this->client->collections[$this->indexName]->documents->search(
             [
                 'q' => $searchQ,
-                'query_by' => 'dcterms_title,dcterms_alternative,dcterms_creator,dcterms_subject,dcterms_abstract,dcterms_publisher',
-                'query_by_weights' => '5,5,2,1,1,1',
+                //'query_by' => 'dcterms_title,dcterms_alternative,dcterms_creator,dcterms_subject,dcterms_abstract,dcterms_publisher',
+                'query_by' => $queryBy,
+                //'query_by_weights' => '5,5,2,1,1,1',
                 'highlight_full_fields' => 'dcterms_title',
                 'page' => 1,
                 'per_page' => 15,
@@ -70,7 +84,6 @@ class SearchController extends AbstractActionController
                 //'sort_by' => 'dcterms_issued:desc',
             ],
         );
-        //var_dump($results['hits']);
 
         return new JsonModel([
             'results' => $results,

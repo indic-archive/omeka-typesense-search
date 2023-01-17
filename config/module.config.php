@@ -59,6 +59,7 @@ return [
             'typesense_port' => null,
             'typesense_api_key' => null,
             'typesense_search_index' => null,
+            'typesense_index_properties' => [],
         ],
     ],
 ];
