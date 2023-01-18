@@ -26,6 +26,22 @@ return [
 
     'router' => [
         'routes' => [
+            'admin' => [
+                'child_routes' => [
+                    'search-index' => [
+                        'type' => Literal::class,
+                        'options' => [
+                            'route' => '/search-index',
+                            'defaults' => [
+                                '__NAMESPACE__' => 'TypesenseSearch\Controller',
+                                'controller' => Controller\SearchController::class,
+                                'action' => 'reIndex',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+
             'site' => [
                 'child_routes' => [
                     'search' => [

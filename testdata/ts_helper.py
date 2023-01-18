@@ -58,6 +58,8 @@ def create_index():
         }
     )
 
+
+def update_index():
     documents = []
     with open("/tmp/data.csv", "r") as f:
         csv_reader = csv.reader(
@@ -133,6 +135,8 @@ if __name__ == "__main__":
 
     if args.action == "create":
         create_index()
+    if args.action == "update":
+        update_index()
     elif args.action == "delete":
         delete_index()
     elif args.action == "search":

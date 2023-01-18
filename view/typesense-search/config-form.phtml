@@ -1,6 +1,9 @@
-<?php echo $this->headScript()->appendFile($this->assetUrl('js/index-properties.js', 'TypesenseSearch')); ?>
-<?php echo $this->headLink()->appendStylesheet($this->assetUrl('css/index-properties.css', 'TypesenseSearch')); ?>
+<?php
+$this->headScript()->appendFile($this->assetUrl('js/index-properties.js', 'TypesenseSearch'));
+$this->headLink()->appendStylesheet($this->assetUrl('css/index-properties.css', 'TypesenseSearch'));
+?>
 
+<?= $this->form()->openTag($form) ?>
 <?php echo $this->formCollection($form, false); ?>
 
 <p><?php echo $this->translate('Properties selected here will indexed on all items. Add properties from the sidebar to the right.'); ?>
@@ -8,6 +11,9 @@
 <div id="index-properties-list" data-index-properties="<?php echo $this->escapeHtml(json_encode($this->indexProperties)); ?>">
 </div>
 <input type="hidden" name="ignore">
-
-
 <?php echo $this->propertySelector(); ?>
+<?= $this->form()->closeTag() ?>
+
+<div id="search-opts">
+    <button type="button" class="index-btn">Star reindex</button>
+</div>

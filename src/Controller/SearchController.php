@@ -7,6 +7,7 @@ namespace TypesenseSearch\Controller;
 use Typesense\Client;
 use Symfony\Component\HttpClient\HttplugClient;
 use Laminas\Mvc\Controller\AbstractActionController;
+use Omeka\Stdlib\Message;
 use Laminas\View\Model\JsonModel;
 
 /**
@@ -87,6 +88,18 @@ class SearchController extends AbstractActionController
 
         return new JsonModel([
             'results' => $results,
+        ]);
+    }
+
+    public function reIndexAction()
+    {
+        $jobArgs = [];
+        $jobArgs["client"] = $this->client;
+        $jobArgs["index_name"] = $this->indexName;
+        $this->jobDispatcher()->dispatch(\TypesenseSearch\Job\SearchIndex::class, $jobArgs);
+
+        return new JsonModel([
+            'message' => 'started reindexing',
         ]);
     }
 }
