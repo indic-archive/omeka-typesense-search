@@ -43,6 +43,20 @@ return [
             ],
 
             'site' => [
+                'type' => \Laminas\Router\Http\Segment::class,
+                'options' => [
+                    'route' => '/:site-slug',
+                    'constraints' => [
+                        'site-slug' => '[a-zA-Z0-9_-]+',
+                    ],
+                    'defaults' => [
+                        '__NAMESPACE__' => 'Omeka\Controller\Site',
+                        '__SITE__' => true,
+                        'controller' => 'Index',
+                        'action' => 'index',
+                    ],
+                ],
+                'may_terminate' => true,
                 'child_routes' => [
                     'search' => [
                         'type' => Literal::class,

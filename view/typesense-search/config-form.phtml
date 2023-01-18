@@ -1,6 +1,8 @@
 <?php
 $this->headScript()->appendFile($this->assetUrl('js/index-properties.js', 'TypesenseSearch'));
 $this->headLink()->appendStylesheet($this->assetUrl('css/index-properties.css', 'TypesenseSearch'));
+
+$indexAction = $this->url('admin/search-index', ['controller' => 'SearchController', 'action' => 'reIndex'], true);
 ?>
 
 <?= $this->form()->openTag($form) ?>
@@ -15,5 +17,5 @@ $this->headLink()->appendStylesheet($this->assetUrl('css/index-properties.css', 
 <?= $this->form()->closeTag() ?>
 
 <div id="search-opts">
-    <button type="button" class="index-btn">Star reindex</button>
+    <button type="button" data-url="<?php echo $indexAction; ?>" class="index-btn">Start reindex</button>
 </div>

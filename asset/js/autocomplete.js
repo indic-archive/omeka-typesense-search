@@ -317,7 +317,10 @@
   function _getSuggestions(prefix) {
     var self = this;
     var http = new XMLHttpRequest();
-    http.open("GET", "/omeka/main/search?query=" + prefix, true);
+    // Get the search url from form attribute.
+    var url = document.querySelector("#search-form").dataset.url;
+
+    http.open("GET", url + "?query=" + prefix, true);
     http.onreadystatechange = function () {
       if (http.readyState == 4) {
         var response = {};
