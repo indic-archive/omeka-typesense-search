@@ -14,36 +14,12 @@ class ConfigForm extends Form
         $this
             ->add([
                 'type' => Element\Text::class,
-                'name' => 'typesense_host',
+                'name' => 'typesense_url',
                 'options' => [
-                    'label' => 'Typesense host here.',
+                    'label' => 'Typesense url here.',
                 ],
                 'attributes' => [
-                    'id' => 'typesense_host',
-                    'required' => true,
-                ],
-            ])
-
-            ->add([
-                'type' => Element\Text::class,
-                'name' => 'typesense_protocol',
-                'options' => [
-                    'label' => 'Typesense protocol here.',
-                ],
-                'attributes' => [
-                    'id' => 'typesense_protocol',
-                    'required' => true,
-                ],
-            ])
-
-            ->add([
-                'type' => Element\Text::class,
-                'name' => 'typesense_port',
-                'options' => [
-                    'label' => 'Typesense port here.',
-                ],
-                'attributes' => [
-                    'id' => 'typesense_port',
+                    'id' => 'typesense_url',
                     'required' => true,
                 ],
             ])
@@ -74,15 +50,7 @@ class ConfigForm extends Form
 
         $this->getInputFilter()
             ->add([
-                'name' => 'typesense_host',
-                'required' => true,
-            ])
-            ->add([
-                'name' => 'typesense_protocol',
-                'required' => true,
-            ])
-            ->add([
-                'name' => 'typesense_port',
+                'name' => 'typesense_url',
                 'required' => true,
             ])
             ->add([

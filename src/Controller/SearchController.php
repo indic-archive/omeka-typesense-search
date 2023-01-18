@@ -41,14 +41,15 @@ class SearchController extends AbstractActionController
      */
     public function __construct(Logger $logger, array $parameters)
     {
+        $urlParts = parse_url($parameters['url']);
         $this->client = new Client(
             [
                 'api_key' => $parameters['api_key'],
                 'nodes' => [
                     [
-                        'host' => $parameters['host'],
-                        'port' => $parameters['port'],
-                        'protocol' => $parameters['protocol'],
+                        'host' => $urlParts['host'],
+                        'port' => $urlParts['port'],
+                        'protocol' => $urlParts['scheme'],
                     ],
                 ],
                 'client' => new HttplugClient(),

@@ -24,19 +24,21 @@ class SearchControllerFactory implements FactoryInterface
     {
         $settings = $services->get('Omeka\Settings');
         $parameters = [
-            'host' => $settings->get('typesense_host', 'localhost'),
-            'protocol' => $settings->get('typesense_protocol', 'http'),
-            'port' => $settings->get('typesense_port', '8108'),
+            'url' => $settings->get('typesense_url', 'http://localhost:8108'),
             'api_key' => $settings->get('typesense_api_key'),
             'search_index' => $settings->get('typesense_search_index'),
             'index_properties' => $settings->get('typesense_index_properties'),
         ];
 
+        if (empty($parameters['index_properties'])) {
+            throw new ConfigException('Index properties are required.');
+        }
+
         if (empty($parameters['search_index'])) {
             throw new ConfigException('Search index is required.');
         }
 
-        if (empty($parameters['host']) || empty($parameters['api_key'])) {
+        if (empty($parameters['url']) || empty($parameters['api_key'])) {
             throw new ConfigException('Host, API Key are required.');
         }
 

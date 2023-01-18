@@ -106,9 +106,7 @@ return [
 
     'typesensesearch' => [
         'config' => [
-            'typesense_host' => null,
-            'typesense_protocol' => null,
-            'typesense_port' => null,
+            'typesense_url' => null,
             'typesense_api_key' => null,
             'typesense_search_index' => null,
             'typesense_index_properties' => [],

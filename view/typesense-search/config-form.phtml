@@ -7,7 +7,6 @@ $createIndexAction = $this->url('admin/create-index', ['controller' => 'SearchCo
 $dropIndexAction = $this->url('admin/drop-index', ['controller' => 'SearchController', 'action' => 'dropIndex'], true);
 ?>
 
-<?= $this->form()->openTag($form) ?>
 <?php echo $this->formCollection($form, false); ?>
 
 <fieldset>
@@ -18,7 +17,6 @@ $dropIndexAction = $this->url('admin/drop-index', ['controller' => 'SearchContro
     <?php echo $this->propertySelector(); ?>
 </fieldset>
 
-<?= $this->form()->closeTag() ?>
 
 <fieldset>
     <legend>Actions</legend>

@@ -6,13 +6,13 @@ This module allows you to use Typesense as the search engine for your Omeka-s si
 
 - Setup typesense server
 
-```
+```bash
 docker run -p 8108:8108 -v/tmp/data:/data typesense/typesense:0.23.1 --data-dir /data --api-key=Hu52dwsas2AdxdE
 ```
 
 - Add mock data
 
-```
+```python
 import typesense
 
 client = typesense.Client({
@@ -38,12 +38,13 @@ document = {
    "title": "1956 ഒക്ടോബർ- ജ്ഞാനനിക്ഷേപം - പുസ്തകം 59 ലക്കം 10",
    "topics": "Jnananikshepam",
    "publisher": "The Diocesan Publication Department"
-  }
+}
 
-  client.collections['books'].documents.create(document)
+client.collections['books'].documents.create(document)
 ```
 
-Or get the production data using sql script located in testdata/pull-items.sql and get a /tmp/data.csv. Import the same using the following script
+Or get the production data using sql script located in testdata/pull-items.sql and get a /tmp/data.csv. Create the index using the following script with the data.
+
 ```bash
 python testdata/ts_helper.py create
 ```
@@ -54,6 +55,7 @@ python testdata/ts_helper.py create
 composer install
 ```
 
+Build minified assets folder and watch for changes
 ```bash
 npm run minify
 ```
@@ -62,22 +64,24 @@ npm run minify
 
 - Enable the module from the Admin → Modules menu.
 
-- Configure the module by going to the Configure form (located at /admin/module/Typesense). Enter the host and API key for your Typesense server.
+- Configure the module by going to the Configure form.
 
 ## Configuration
 
 The configuration form for this module allows you to specify the following options:
 
-- Typesense Host: The hostname of your Typesense server.
+- Typesense url: The url of your Typesense server.
 
 - API Key: The API key for your Typesense server. This can be found in the Typesense Admin Dashboard.
 
 - Search index: Name of the search index.
 
+- Index properties: From the right side pane, select the properties of `Omeka\Entity\Items` you require to index.
+
 ## Usage
 
 Once the module is installed and configured, search on your Omeka-s site will be powered by Typesense.
 
-
 ## Credits
+
 - Carlos Roso - https://github.com/caroso1222/amazon-autocomplete. This repo's autocomplete.js is a modified version of his work.
