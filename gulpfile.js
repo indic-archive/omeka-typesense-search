@@ -37,7 +37,7 @@ gulp.task(
   gulp.series(function () {
     deleteSync(["asset/public/*.css"]);
     return gulp
-      .src(["asset/css/flex-kebab.css", "asset/css/search.css"])
+      .src(["asset/css/search.css"])
       .pipe(concat({ path: "stylesheet.css", cwd: "" }))
       .pipe(cleanCss())
       .pipe(rev())
