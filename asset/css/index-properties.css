@@ -1,7 +1,13 @@
 #hide-properties-list .row {
-    display: flex;
+  display: flex;
 }
 
 p {
-    margin-top: 0;
+  margin-top: 0;
+}
+
+.search-opts {
+  display: flex;
+  flex-direction: column;
+  width: 150px;
 }

@@ -9,7 +9,7 @@ use Omeka\Stdlib\Message;
 use Typesense\Client;
 use Symfony\Component\HttpClient\HttplugClient;
 
-class SearchIndex extends AbstractJob
+class RecreateIndex extends AbstractJob
 {
     /**
      * @var Logger
@@ -97,41 +97,60 @@ SQL;
         );
 
         // recreate the index
-        $client->collections[$indexName]->delete();
-        $client->collections->create(
-            [
-                'name' => 'books',
-                'fields' => [
-                    ['name' => 'dcterms_identifier', 'type' => 'string[]'],
-                    [
-                        'name' => 'dcterms_title',
-                        'type' => 'string[]',
-                        'infix' => True,
+        try {
+            $client->collections[$indexName]->delete();
+        } catch (\Exception $e) {
+            $this->logger->err(new Message('Error deleing index #%s, err: %s', $indexName, $e->getMessage()));
+            return;
+        }
+
+        try {
+            $client->collections->create(
+                [
+                    'name' => 'books',
+                    'fields' => [
+                        ['name' => 'dcterms_identifier', 'type' => 'string[]'],
+                        [
+                            'name' => 'dcterms_title',
+                            'type' => 'string[]',
+                            'infix' => True,
+                        ],
+                        [
+                            'name' => 'dcterms_alternative',
+                            'type' => 'string[]',
+                            'infix' => True,
+                        ],
+                        ['name' => 'dcterms_abstract', 'type' => 'string[]'],
+                        ['name' => 'dcterms_creator', 'type' => 'string[]'],
+                        [
+                            'name' => 'dcterms_issued',
+                            'type' => 'string[]',
+                        ],  # issue after adding this
+                        ['name' => 'dcterms_subject', 'type' => 'string[]'],
+                        ['name' => 'dcterms_language', 'type' => 'string[]'],
+                        ['name' => 'dcterms_extent', 'type' => 'string[]'],
+                        ['name' => 'dcterms_publisher', 'type' => 'string[]'],
+                        ['name' => 'bibo_producer', 'type' => 'string[]'],
+                        ['name' => 'dcterms_coverage', 'type' => 'string[]'],
                     ],
-                    [
-                        'name' => 'dcterms_alternative',
-                        'type' => 'string[]',
-                        'infix' => True,
-                    ],
-                    ['name' => 'dcterms_abstract', 'type' => 'string[]'],
-                    ['name' => 'dcterms_creator', 'type' => 'string[]'],
-                    [
-                        'name' => 'dcterms_issued',
-                        'type' => 'string[]',
-                    ],  # issue after adding this
-                    ['name' => 'dcterms_subject', 'type' => 'string[]'],
-                    ['name' => 'dcterms_language', 'type' => 'string[]'],
-                    ['name' => 'dcterms_extent', 'type' => 'string[]'],
-                    ['name' => 'dcterms_publisher', 'type' => 'string[]'],
-                    ['name' => 'bibo_producer', 'type' => 'string[]'],
-                    ['name' => 'dcterms_coverage', 'type' => 'string[]'],
-                ],
-                'token_separators' => ['-'],
-            ]
-        );
-        $response = $client->collections[$indexName]->documents->import($documents, [
-            'action' => 'create',
-        ]);
+                    'token_separators' => ['-'],
+                ]
+            );
+        } catch (\Exception $e) {
+            $this->logger->err(new Message('Error creating index #%s, err: %s', $indexName, $e->getMessage()));
+            return;
+        }
+
+        try {
+            $response = $client->collections[$indexName]->documents->import($documents, [
+                'action' => 'create',
+            ]);
+        } catch (\Exception $e) {
+            $this->logger->err(new Message('Error importing documents to index #%s, err: %s', $indexName, $e->getMessage()));
+            return;
+        }
+
+        // count the number of success
         $successes = array_column($response, "success");
         $count = count(array_keys($successes, 1));
 

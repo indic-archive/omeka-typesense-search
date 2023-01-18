@@ -28,14 +28,36 @@ return [
         'routes' => [
             'admin' => [
                 'child_routes' => [
-                    'search-index' => [
+                    'create-index' => [
                         'type' => Literal::class,
                         'options' => [
-                            'route' => '/search-index',
+                            'route' => '/search-index/create',
                             'defaults' => [
                                 '__NAMESPACE__' => 'TypesenseSearch\Controller',
                                 'controller' => Controller\SearchController::class,
-                                'action' => 'reIndex',
+                                'action' => 'createIndex',
+                            ],
+                        ],
+                    ],
+                    'drop-index' => [
+                        'type' => Literal::class,
+                        'options' => [
+                            'route' => '/search-index/drop',
+                            'defaults' => [
+                                '__NAMESPACE__' => 'TypesenseSearch\Controller',
+                                'controller' => Controller\SearchController::class,
+                                'action' => 'dropIndex',
+                            ],
+                        ],
+                    ],
+                    'recreate-index' => [
+                        'type' => Literal::class,
+                        'options' => [
+                            'route' => '/search-index/recreate',
+                            'defaults' => [
+                                '__NAMESPACE__' => 'TypesenseSearch\Controller',
+                                'controller' => Controller\SearchController::class,
+                                'action' => 'recreateIndex',
                             ],
                         ],
                     ],

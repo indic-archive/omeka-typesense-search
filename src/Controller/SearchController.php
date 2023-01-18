@@ -8,6 +8,7 @@ use Typesense\Client;
 use Symfony\Component\HttpClient\HttplugClient;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Omeka\Stdlib\Message;
+use Laminas\Log\Logger;
 use Laminas\View\Model\JsonModel;
 
 /**
@@ -15,6 +16,11 @@ use Laminas\View\Model\JsonModel;
  */
 class SearchController extends AbstractActionController
 {
+    /**
+     * @var Logger
+     */
+    protected $logger;
+
     /**
      * @var Client
      */
@@ -33,7 +39,7 @@ class SearchController extends AbstractActionController
     /**
      * @param array $parameters typesense configurations.
      */
-    public function __construct(array $parameters)
+    public function __construct(Logger $logger, array $parameters)
     {
         $this->client = new Client(
             [
@@ -50,6 +56,7 @@ class SearchController extends AbstractActionController
         );
         $this->indexName = $parameters['search_index'];
         $this->indexProperties = $parameters['index_properties'];
+        $this->logger = $logger;
     }
 
     /**
@@ -91,12 +98,38 @@ class SearchController extends AbstractActionController
         ]);
     }
 
-    public function reIndexAction()
+    public function dropIndexAction()
+    {
+        try {
+            $this->client->collections[$this->indexName]->delete();
+        } catch (\Exception $e) {
+            $this->logger->err(new Message('Error deleing index #%s, err: %s', $this->indexName, $e->getMessage()));
+            return new JsonModel([
+                'message' => 'error deleting index',
+            ]);
+        }
+
+        return new JsonModel([
+            'message' => 'index dropped',
+        ]);
+    }
+
+    public function createIndexAction()
     {
         $jobArgs = [];
-        $jobArgs["client"] = $this->client;
         $jobArgs["index_name"] = $this->indexName;
-        $this->jobDispatcher()->dispatch(\TypesenseSearch\Job\SearchIndex::class, $jobArgs);
+        $this->jobDispatcher()->dispatch(\TypesenseSearch\Job\CreateIndex::class, $jobArgs);
+
+        return new JsonModel([
+            'message' => 'index created',
+        ]);
+    }
+
+    public function recreateIndexAction()
+    {
+        $jobArgs = [];
+        $jobArgs["index_name"] = $this->indexName;
+        $this->jobDispatcher()->dispatch(\TypesenseSearch\Job\RecreateIndex::class, $jobArgs);
 
         return new JsonModel([
             'message' => 'started reindexing',

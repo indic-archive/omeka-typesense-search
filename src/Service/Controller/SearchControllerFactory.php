@@ -40,6 +40,9 @@ class SearchControllerFactory implements FactoryInterface
             throw new ConfigException('Host, API Key are required.');
         }
 
-        return new SearchController($parameters);
+        return new SearchController(
+            $services->get('Omeka\Logger'),
+            $parameters
+        );
     }
 }

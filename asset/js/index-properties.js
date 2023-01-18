@@ -28,7 +28,7 @@
 
   $(document).ready(function () {
     // Add job for adding index.
-    $("#search-opts").on("click", ".index-btn", function (e) {
+    $(".search-opts").on("click", ".index-btn", function (e) {
       e.preventDefault();
       $(this).attr("disabled", "disabled");
       var http = new XMLHttpRequest();
@@ -37,7 +37,7 @@
       http.onreadystatechange = function () {
         if (http.readyState == 4) {
           if (this.status == 200) {
-            $("#search-opts .index-btn").removeAttr("disabled");
+            $(".search-opts .index-btn").removeAttr("disabled");
           }
         }
       };

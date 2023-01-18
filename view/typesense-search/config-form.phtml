@@ -2,20 +2,29 @@
 $this->headScript()->appendFile($this->assetUrl('js/index-properties.js', 'TypesenseSearch'));
 $this->headLink()->appendStylesheet($this->assetUrl('css/index-properties.css', 'TypesenseSearch'));
 
-$indexAction = $this->url('admin/search-index', ['controller' => 'SearchController', 'action' => 'reIndex'], true);
+$recreateIndexAction = $this->url('admin/recreate-index', ['controller' => 'SearchController', 'action' => 'recreateIndex'], true);
+$createIndexAction = $this->url('admin/create-index', ['controller' => 'SearchController', 'action' => 'createIndex'], true);
+$dropIndexAction = $this->url('admin/drop-index', ['controller' => 'SearchController', 'action' => 'dropIndex'], true);
 ?>
 
 <?= $this->form()->openTag($form) ?>
 <?php echo $this->formCollection($form, false); ?>
 
-<p><?php echo $this->translate('Properties selected here will indexed on all items. Add properties from the sidebar to the right.'); ?>
-</p>
-<div id="index-properties-list" data-index-properties="<?php echo $this->escapeHtml(json_encode($this->indexProperties)); ?>">
-</div>
-<input type="hidden" name="ignore">
-<?php echo $this->propertySelector(); ?>
+<fieldset>
+    <legend>Properties to index</legend>
+    <div id="index-properties-list" data-index-properties="<?php echo $this->escapeHtml(json_encode($this->indexProperties)); ?>">
+    </div>
+    <input type="hidden" name="ignore">
+    <?php echo $this->propertySelector(); ?>
+</fieldset>
+
 <?= $this->form()->closeTag() ?>
 
-<div id="search-opts">
-    <button type="button" data-url="<?php echo $indexAction; ?>" class="index-btn">Start reindex</button>
-</div>
+<fieldset>
+    <legend>Actions</legend>
+    <div class="search-opts">
+        <button type="button" data-url="<?php echo $createIndexAction; ?>" class="index-btn">Create index</button>
+        <button type="button" data-url="<?php echo $dropIndexAction; ?>" class="index-btn">Drop index</button>
+        <button type="button" data-url="<?php echo $recreateIndexAction; ?>" class="index-btn">Start reindex</button>
+    </div>
+</fieldset>
