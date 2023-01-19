@@ -17,6 +17,7 @@ FROM
     LEFT JOIN `vocabulary` ON `vocabulary`.`id` = `property`.`vocabulary_id`
 WHERE
     `resource`.`resource_type` = 'Omeka\\Entity\\Item'
+    AND `resource`.`is_public` = true
 GROUP BY
     `resource`.`id`
 INTO OUTFILE '/tmp/data.csv'

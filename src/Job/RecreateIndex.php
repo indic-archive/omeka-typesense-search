@@ -40,6 +40,7 @@ FROM
     LEFT JOIN `vocabulary` ON `vocabulary`.`id` = `property`.`vocabulary_id`
 WHERE
     `resource`.`resource_type` = 'Omeka\\Entity\\Item'
+    AND `resource`.`is_public` = true
 GROUP BY
     `resource`.`id`;
 SQL;
@@ -82,14 +83,15 @@ SQL;
         $timeStart = microtime(true);
         $this->logger->info(new Message('Started indexing items under #%s', $indexName));
 
+        $urlParts = parse_url($settings->get('typesense_url'));
         $client = new Client(
             [
                 'api_key' => $settings->get('typesense_api_key'),
                 'nodes' => [
                     [
-                        'host' => $settings->get('typesense_host'),
-                        'port' => $settings->get('typesense_port'),
-                        'protocol' => $settings->get('typesense_protocol'),
+                        'host' => $urlParts['host'],
+                        'port' => $urlParts['port'],
+                        'protocol' => $urlParts['scheme'],
                     ],
                 ],
                 'client' => new HttplugClient(),
@@ -100,7 +102,7 @@ SQL;
         try {
             $client->collections[$indexName]->delete();
         } catch (\Exception $e) {
-            $this->logger->err(new Message('Error deleing index #%s, err: %s', $indexName, $e->getMessage()));
+            $this->logger->err(new Message('Error deleting index #%s, err: %s', $indexName, $e->getMessage()));
             return;
         }
 

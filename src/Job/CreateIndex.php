@@ -28,14 +28,15 @@ class CreateIndex extends AbstractJob
         $timeStart = microtime(true);
         $this->logger->info(new Message('Creating a new index #%s', $indexName));
 
+        $urlParts = parse_url($settings->get('typesense_url'));
         $client = new Client(
             [
                 'api_key' => $settings->get('typesense_api_key'),
                 'nodes' => [
                     [
-                        'host' => $settings->get('typesense_host'),
-                        'port' => $settings->get('typesense_port'),
-                        'protocol' => $settings->get('typesense_protocol'),
+                        'host' => $urlParts['host'],
+                        'port' => $urlParts['port'],
+                        'protocol' => $urlParts['scheme'],
                     ],
                 ],
                 'client' => new HttplugClient(),

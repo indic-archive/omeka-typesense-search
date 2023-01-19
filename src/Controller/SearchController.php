@@ -104,7 +104,7 @@ class SearchController extends AbstractActionController
         try {
             $this->client->collections[$this->indexName]->delete();
         } catch (\Exception $e) {
-            $this->logger->err(new Message('Error deleing index #%s, err: %s', $this->indexName, $e->getMessage()));
+            $this->logger->err(new Message('Error deleting index #%s, err: %s', $this->indexName, $e->getMessage()));
             return new JsonModel([
                 'message' => 'error deleting index',
             ]);
