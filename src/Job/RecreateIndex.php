@@ -56,7 +56,7 @@ SQL;
 
             // Add defaults index properties
             $document = [
-                'resource_id' => $result['resource_id'],
+                'resource_id' => strval($result['resource_id']),
             ];
 
             foreach ($indexProperties as $property) {
@@ -74,6 +74,8 @@ SQL;
 
             array_push($documents, $document);
         }
+
+        $this->logger->info(new Message('Fetched %s documents', count($documents)));
 
         // Get the parameters passed to the job.
         $indexName = $this->getArg('index_name');

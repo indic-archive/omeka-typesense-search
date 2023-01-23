@@ -32,7 +32,7 @@ $dropIndexAction = $this->url('admin/drop-index', ['controller' => 'SearchContro
             <label for="typesense_search_result_format">Result format</label>
         </div>
         <div class="inputs">
-            <input id="typesense_search_result_format" type="text" name="typesense_search_result_format" placeholder="{dcterms:title} ({dcterms:extends pages}) - {dcterms:author}" value="<?php echo $this->escapeHtml($this->resultFormatting); ?>" required="required">
+            <input id="typesense_search_result_format" type="text" name="typesense_search_result_format" placeholder="{dcterms:title} ({dcterms:extent} pages) - {dcterms:creator}" value="<?php echo $this->escapeHtml($this->resultFormatting); ?>" required="required">
         </div>
     </div>
 </fieldset>
