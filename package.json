@@ -1,6 +1,7 @@
 {
   "type": "module",
   "scripts": {
+    "build": "node_modules/.bin/gulp pack-js pack-css",
     "minify": "node_modules/.bin/gulp"
   },
   "devDependencies": {
