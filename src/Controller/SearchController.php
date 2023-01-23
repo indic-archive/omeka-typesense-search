@@ -68,7 +68,7 @@ class SearchController extends AbstractActionController
         $this->indexName = $parameters['search_index'];
         $this->indexProperties = $parameters['index_properties'];
         $this->resultFormat = $parameters['search_result_formatting'];
-        $this->useTypesenseHighlights = $parameters['search_result_formatting_fallback'];
+        $this->useTypesenseHighlights = $parameters['use_typesense_highlights'];
     }
 
     /**
@@ -166,7 +166,12 @@ class SearchController extends AbstractActionController
                         $field = str_replace(":", "_", $field);
 
                         if (isset($hit["document"][$field])) {
-                            $data = str_replace($match, $hit["document"][$field][0], $data);
+                            if (!empty($hit["document"][$field])) {
+                                $data = str_replace($match, strval($hit["document"][$field][0]), $data);
+                            } else {
+                                // replace the unmatched dc terms with empty value
+                                $data = str_replace($match, "", $data);
+                            }
                         }
                     }
 
@@ -185,6 +190,7 @@ class SearchController extends AbstractActionController
 
         return new JsonModel([
             'results' => $searchResults,
+            'typesense' => $results,
         ]);
     }
 

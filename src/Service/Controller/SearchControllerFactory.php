@@ -29,7 +29,7 @@ class SearchControllerFactory implements FactoryInterface
             'search_index' => $settings->get('typesense_search_index'),
             'index_properties' => $settings->get('typesense_index_properties'),
             'search_result_formatting' => $settings->get('typesense_search_result_format'),
-            'search_result_formatting_fallback' => $settings->get('typesense_search_result_format_fallback'),
+            'use_typesense_highlights' => $settings->get('typesense_search_override_highlights'),
         ];
 
         if (empty($parameters['index_properties'])) {
