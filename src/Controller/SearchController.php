@@ -91,18 +91,25 @@ class SearchController extends AbstractActionController
         }
         $queryBy = implode(',', $result);
 
-        $results = $this->client->collections[$this->indexName]->documents->search(
-            [
-                'q' => $searchQ,
-                'query_by' => $queryBy,
-                //'query_by_weights' => '5,5,2,1,1,1',
-                'highlight_full_fields' => 'dcterms_title',
-                'page' => 1,
-                'per_page' => 15,
-                'infix' => 'fallback',
-                //'sort_by' => 'dcterms_issued:desc',
-            ],
-        );
+        try {
+            $results = $this->client->collections[$this->indexName]->documents->search(
+                [
+                    'q' => $searchQ,
+                    'query_by' => $queryBy,
+                    //'query_by_weights' => '5,5,2,1,1,1',
+                    'highlight_full_fields' => 'dcterms_title',
+                    'page' => 1,
+                    'per_page' => 15,
+                    'infix' => 'fallback',
+                    //'sort_by' => 'dcterms_issued:desc',
+                ],
+            );
+        } catch (\Exception $e) {
+            //$this->logger->err(new Message('Error searching index #%s, err: %s', $this->indexName, $e->getMessage()));
+            return new JsonModel([
+                'results' => [],
+            ]);
+        }
 
         /**
          * results
@@ -186,7 +193,7 @@ class SearchController extends AbstractActionController
         try {
             $this->client->collections[$this->indexName]->delete();
         } catch (\Exception $e) {
-            $this->logger->err(new Message('Error deleting index #%s, err: %s', $this->indexName, $e->getMessage()));
+            //$this->logger->err(new Message('Error deleting index #%s, err: %s', $this->indexName, $e->getMessage()));
             return new JsonModel([
                 'message' => 'error deleting index',
             ]);
