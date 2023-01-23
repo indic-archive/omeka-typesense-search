@@ -190,7 +190,6 @@ class SearchController extends AbstractActionController
 
         return new JsonModel([
             'results' => $searchResults,
-            'typesense' => $results,
         ]);
     }
 
