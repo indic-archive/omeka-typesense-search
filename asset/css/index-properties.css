@@ -1,0 +1,13 @@
+#index-properties-list .row {
+  display: flex;
+}
+
+p {
+  margin-top: 0;
+}
+
+.search-opts {
+  display: flex;
+  flex-direction: column;
+  width: 150px;
+}

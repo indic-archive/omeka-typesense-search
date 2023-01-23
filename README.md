@@ -1,31 +1,32 @@
-# Omeka-s Typesense Module
+# Omeka-S TypeSense live search
 
-This module allows you to use Typesense as the search engine for your Omeka-s site. Typesense is an open-source, typo-tolerant search engine that delivers fast and relevant search results.
+This module integrates [TypeSense](https://typesense.org/) type-as-you-search search into the default
+Omeka-S search to allow lightning fast, instant fulltext search and suggestions over the entire
+Omeka-S item database even with millions of items.
+
+## Features
+- Select properties to index.
+- Configure fields to display in the search results.
+- Automatically keep TypeSense search index up to date when items are added or removed.
+- Schedule bulk re-indexing.
+- Javascript autocomplete search widget automatically hooks on to frontend search box.
 
 ## Installation
 
-* Install the Typesense server. Follow the instructions at https://docs.typesense.org/getting-started/installation/ to install Typesense.
+- Install and run [TypeSense](https://typesense.org/docs/guide/install-typesense.html#option-2-local-machine-self-hosting)
 
-* Install the Typesense PHP client library by running the following command:
+Example:
 
 ```bash
-composer require typesense/typesense
+docker run -p 8108:8108 -v/tmp/data:/data typesense/typesense:0.23.1 --data-dir /data --api-key=xxxxxx
 ```
 
-* Install this module by copying the Typesense directory into the modules directory of your Omeka-s installation.
+- Clone this repository to the Omeka-S module directory `~/path/to/omeka/modules`.
+- `cd ~/path/to/omeka/modules` and run `composer install` to install the `typesense-php` dependency.
+- Enable the module from the Admin → Modules menu.
+- Connect the module to your TypeSense installation using the `Configure` form.
 
-* Enable the module from the Admin → Modules menu.
+Search-as-you-type is now automatically hooked on to the search box on the Omeka-S frontend.
 
-* Configure the module by going to the Configure form (located at /admin/module/Typesense). Enter the host and API key for your Typesense server.
-
-## Configuration
-
-The configuration form for this module allows you to specify the following options:
-
-* Typesense Host: The hostname of your Typesense server.
-
-* API Key: The API key for your Typesense server. This can be found in the Typesense Admin Dashboard.
-
-## Usage
-
-Once the module is installed and configured, search on your Omeka-s site will be powered by Typesense.
+## Credits
+autocomplete.js is a modified version of [caroso1222/amazon-autocomplete](https://github.com/caroso1222/amazon-autocomplete)

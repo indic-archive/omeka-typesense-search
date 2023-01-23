@@ -1,0 +1,47 @@
+<?php
+$this->headScript()->appendFile($this->assetUrl('js/index-properties.js', 'TypesenseSearch'));
+$this->headLink()->appendStylesheet($this->assetUrl('css/index-properties.css', 'TypesenseSearch'));
+
+$recreateIndexAction = $this->url('admin/recreate-index', ['controller' => 'SearchController', 'action' => 'recreateIndex'], true);
+$createIndexAction = $this->url('admin/create-index', ['controller' => 'SearchController', 'action' => 'createIndex'], true);
+$dropIndexAction = $this->url('admin/drop-index', ['controller' => 'SearchController', 'action' => 'dropIndex'], true);
+?>
+
+<?php echo $this->formCollection($form, false); ?>
+
+<fieldset>
+    <legend>Properties to index</legend>
+    <div id="index-properties-list" data-index-properties="<?php echo $this->escapeHtml(json_encode($this->indexProperties)); ?>">
+    </div>
+    <input type="hidden" name="ignore">
+    <?php echo $this->propertySelector(); ?>
+</fieldset>
+
+<fieldset>
+    <legend>Formatting</legend>
+    <div class="field">
+        <div class="field-meta">
+            <label for="typesense_search_result_format_fallback">Use as fallback</label>
+        </div>
+        <div class="inputs">
+            <input id="typesense_search_result_format_fallback" type="checkbox" name="typesense_search_result_format_fallback" <?php if ($this->useTypesenseHighlight) echo "checked"; ?>>
+        </div>
+    </div>
+    <div class="field">
+        <div class="field-meta">
+            <label for="typesense_search_result_format">Result format</label>
+        </div>
+        <div class="inputs">
+            <input id="typesense_search_result_format" type="text" name="typesense_search_result_format" placeholder="{dcterms:title} ({dcterms:extends pages}) - {dcterms:author}" value="<?php echo $this->escapeHtml($this->resultFormatting); ?>" required="required">
+        </div>
+    </div>
+</fieldset>
+
+<fieldset>
+    <legend>Actions</legend>
+    <div class="search-opts">
+        <button type="button" data-url="<?php echo $createIndexAction; ?>" class="index-btn">Create index</button>
+        <button type="button" data-url="<?php echo $dropIndexAction; ?>" class="index-btn">Drop index</button>
+        <button type="button" data-url="<?php echo $recreateIndexAction; ?>" class="index-btn">Start reindex</button>
+    </div>
+</fieldset>
