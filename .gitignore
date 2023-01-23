@@ -13,5 +13,3 @@
 composer.phar
 debug.log
 NOTES.md
-/asset/public/*
-rev-manifest.json
