@@ -121,6 +121,7 @@ class SearchController extends AbstractActionController
         $searchResults = [];
         foreach ($results['hits'] as $hit) {
             $document = [];
+            // generate item url based on resource id.
             $document["url"] = $url(
                 'site/resource-id',
                 [
@@ -132,6 +133,9 @@ class SearchController extends AbstractActionController
             );
             $document["text"] = "";
 
+            // add text from typesense response
+            // 1. If useTypesenseHighlights enabled, use highlights.
+            // 2. Otherwise, use the dublin core format specified in admin module.
             $highlights = $hit["highlights"];
             if ($this->useTypesenseHighlights && !empty($highlights)) {
                 // Use highlighted snippet if not empty
@@ -197,6 +201,7 @@ class SearchController extends AbstractActionController
     {
         $jobArgs = [];
         $jobArgs["index_name"] = $this->indexName;
+        $jobArgs["index_fields"] = $this->indexProperties;
         $this->jobDispatcher()->dispatch(\TypesenseSearch\Job\CreateIndex::class, $jobArgs);
 
         return new JsonModel([
@@ -208,6 +213,7 @@ class SearchController extends AbstractActionController
     {
         $jobArgs = [];
         $jobArgs["index_name"] = $this->indexName;
+        $jobArgs["index_fields"] = $this->indexProperties;
         $this->jobDispatcher()->dispatch(\TypesenseSearch\Job\RecreateIndex::class, $jobArgs);
 
         return new JsonModel([

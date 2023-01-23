@@ -47,30 +47,26 @@ GROUP BY
 SQL;
         $results = $connection->fetchAll($sql);
 
+        $indexProperties = $this->getArg('index_fields');
+
         $documents = array();
         foreach ($results as $result) {
             $fields = explode('|', $result['fields']);
             $values = explode('|', $result['values']);
 
+            // Add defaults index properties
             $document = [
                 'resource_id' => $result['resource_id'],
-                'dcterms_identifier' => [],
-                'dcterms_title' => [],
-                'dcterms_alternative' => [],
-                'dcterms_abstract' => [],
-                'dcterms_creator' => [],
-                'dcterms_issued' => [],
-                'dcterms_subject' => [],
-                'dcterms_language' => [],
-                'dcterms_extent' => [],
-                'dcterms_publisher' => [],
-                'bibo_producer' => [],
-                'dcterms_coverage' => [],
             ];
+
+            foreach ($indexProperties as $property) {
+                $fieldName = str_replace(":", "_", $property);
+                $document[$fieldName] = [];
+            }
 
             foreach (array_combine($fields, $values) as $key => $value) {
                 if (!array_key_exists($key, $document)) {
-                    $document[$key] = array();
+                    continue;
                 }
 
                 array_push($document[$key], $value);
@@ -108,36 +104,28 @@ SQL;
             return;
         }
 
+
+        $indexFields = [
+            ['name' => 'resource_id', 'type' => 'string', "index" => true, "optional" => true]
+        ];
+        foreach ($indexProperties as $property) {
+            $fieldName = str_replace(":", "_", $property);
+            $fields = [
+                'name' => $fieldName,
+                'type' => 'string[]'
+            ];
+            if ($fieldName == 'dcterms_title' && $fieldName == 'dcterms_alternative') {
+                $fields['infix'] = True;
+            }
+
+            array_push($indexFields, $fields);
+        }
+
         try {
             $client->collections->create(
                 [
                     'name' => 'books',
-                    'fields' => [
-                        ['name' => 'resource_id', 'type' => 'string', "index" => true, "optional" => true],
-                        ['name' => 'dcterms_identifier', 'type' => 'string[]'],
-                        [
-                            'name' => 'dcterms_title',
-                            'type' => 'string[]',
-                            'infix' => True,
-                        ],
-                        [
-                            'name' => 'dcterms_alternative',
-                            'type' => 'string[]',
-                            'infix' => True,
-                        ],
-                        ['name' => 'dcterms_abstract', 'type' => 'string[]'],
-                        ['name' => 'dcterms_creator', 'type' => 'string[]'],
-                        [
-                            'name' => 'dcterms_issued',
-                            'type' => 'string[]',
-                        ],  # issue after adding this
-                        ['name' => 'dcterms_subject', 'type' => 'string[]'],
-                        ['name' => 'dcterms_language', 'type' => 'string[]'],
-                        ['name' => 'dcterms_extent', 'type' => 'string[]'],
-                        ['name' => 'dcterms_publisher', 'type' => 'string[]'],
-                        ['name' => 'bibo_producer', 'type' => 'string[]'],
-                        ['name' => 'dcterms_coverage', 'type' => 'string[]'],
-                    ],
+                    'fields' => $indexFields,
                     'token_separators' => ['-'],
                 ]
             );
