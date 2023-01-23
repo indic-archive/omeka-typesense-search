@@ -49,6 +49,7 @@ class CreateIndex extends AbstractJob
                 [
                     'name' => 'books',
                     'fields' => [
+                        ['name' => 'resource_id', 'type' => 'string', "index" => true, "optional" => true],
                         ['name' => 'dcterms_identifier', 'type' => 'string[]'],
                         [
                             'name' => 'dcterms_title',

@@ -13,7 +13,7 @@ ready(function () {
   });
 
   // redirect to the item page.
-  searchInput.onSelectedWord(function (identifier) {
-    window.location.href = "/omeka/item/" + identifier;
+  searchInput.onSelectedWord(function (url) {
+    window.location.href = url;
   });
 });

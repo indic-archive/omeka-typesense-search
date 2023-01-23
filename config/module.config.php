@@ -110,6 +110,8 @@ return [
             'typesense_api_key' => null,
             'typesense_search_index' => null,
             'typesense_index_properties' => [],
+            'typesense_search_result_format' => '',
+            'typesense_search_result_format_fallback' => '',
         ],
     ],
 ];

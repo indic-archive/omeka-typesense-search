@@ -25,6 +25,7 @@ class RecreateIndex extends AbstractJob
         $connection = $services->get('Omeka\Connection');
         $sql = <<<'SQL'
 SELECT
+    `value`.`resource_id` as `resource_id`,
     GROUP_CONCAT(
         CONCAT(
             `vocabulary`.`prefix`,
@@ -52,6 +53,7 @@ SQL;
             $values = explode('|', $result['values']);
 
             $document = [
+                'resource_id' => $result['resource_id'],
                 'dcterms_identifier' => [],
                 'dcterms_title' => [],
                 'dcterms_alternative' => [],
@@ -111,6 +113,7 @@ SQL;
                 [
                     'name' => 'books',
                     'fields' => [
+                        ['name' => 'resource_id', 'type' => 'string', "index" => true, "optional" => true],
                         ['name' => 'dcterms_identifier', 'type' => 'string[]'],
                         [
                             'name' => 'dcterms_title',

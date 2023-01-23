@@ -37,6 +37,16 @@ class SearchController extends AbstractActionController
     protected $indexProperties;
 
     /**
+     * @var string
+     */
+    protected $resultFormat;
+
+    /**
+     * @var boolean
+     */
+    protected $useTypesenseHighlights;
+
+    /**
      * @param array $parameters typesense configurations.
      */
     public function __construct(Logger $logger, array $parameters)
@@ -57,7 +67,8 @@ class SearchController extends AbstractActionController
         );
         $this->indexName = $parameters['search_index'];
         $this->indexProperties = $parameters['index_properties'];
-        $this->logger = $logger;
+        $this->resultFormat = $parameters['search_result_formatting'];
+        $this->useTypesenseHighlights = $parameters['search_result_formatting_fallback'];
     }
 
     /**
@@ -83,7 +94,6 @@ class SearchController extends AbstractActionController
         $results = $this->client->collections[$this->indexName]->documents->search(
             [
                 'q' => $searchQ,
-                //'query_by' => 'dcterms_title,dcterms_alternative,dcterms_creator,dcterms_subject,dcterms_abstract,dcterms_publisher',
                 'query_by' => $queryBy,
                 //'query_by_weights' => '5,5,2,1,1,1',
                 'highlight_full_fields' => 'dcterms_title',
@@ -94,8 +104,76 @@ class SearchController extends AbstractActionController
             ],
         );
 
+        /**
+         * results
+         * {
+         *      {
+         *          "url": "/omeka/item/test-1",
+         *          "text": "Test <b>1</b>"
+         *      }
+         * }
+         */
+
+
+        $siteSlug = $this->params()->fromRoute('site-slug');
+        $url = $this->viewHelpers()->get('Url');
+
+        $searchResults = [];
+        foreach ($results['hits'] as $hit) {
+            $document = [];
+            $document["url"] = $url(
+                'site/resource-id',
+                [
+                    'site-slug' => $siteSlug,
+                    'controller' => 'item',
+                    'id' => $hit['document']['resource_id'],
+                ],
+                ['force_canonical' => false]
+            );
+            $document["text"] = "";
+
+            $highlights = $hit["highlights"];
+            if ($this->useTypesenseHighlights && !empty($highlights)) {
+                // Use highlighted snippet if not empty
+                if (array_key_exists("snippet", $highlights[0])) {
+                    $document["text"] = $highlights[0]["snippet"];
+                } else if (array_key_exists("snippets", $highlights[0])) {
+                    if (!empty($highlights[0]["snippets"])) {
+                        $document["text"] = $highlights[0]["snippets"][0];
+                    }
+                }
+            } else if (!empty($hit["document"])) {
+                // Fallback to configurable formatting
+                // match contents inside brackets and replace it with fields from index
+                $re = '/\{(.*?)\}/m';
+                preg_match_all($re, $this->resultFormat, $matches);
+
+                if (!empty($matches)) {
+                    $data = $this->resultFormat;
+                    foreach ($matches[0] as $match) {
+                        $field = str_replace(["{", "}"], "", $match);
+                        $field = str_replace(":", "_", $field);
+
+                        if (isset($hit["document"][$field])) {
+                            $data = str_replace($match, $hit["document"][$field][0], $data);
+                        }
+                    }
+
+                    $document["text"] = $data;
+                } else {
+                    $document["text"] = $hit["document"]["dcterms_title"][0];
+                }
+            }
+
+            // make the highlights bold
+            $document["text"] = str_replace("<mark>", "<b>", $document["text"]);
+            $document["text"] = str_replace("</mark>", "</b>", $document["text"]);
+
+            array_push($searchResults, $document);
+        }
+
         return new JsonModel([
-            'results' => $results,
+            'results' => $searchResults,
         ]);
     }
 

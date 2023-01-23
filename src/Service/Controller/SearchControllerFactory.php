@@ -28,6 +28,8 @@ class SearchControllerFactory implements FactoryInterface
             'api_key' => $settings->get('typesense_api_key'),
             'search_index' => $settings->get('typesense_search_index'),
             'index_properties' => $settings->get('typesense_index_properties'),
+            'search_result_formatting' => $settings->get('typesense_search_result_format'),
+            'search_result_formatting_fallback' => $settings->get('typesense_search_result_format_fallback'),
         ];
 
         if (empty($parameters['index_properties'])) {

@@ -16,7 +16,7 @@ class ConfigForm extends Form
                 'type' => Element\Text::class,
                 'name' => 'typesense_url',
                 'options' => [
-                    'label' => 'Typesense url here.',
+                    'label' => 'Typesense URL',
                 ],
                 'attributes' => [
                     'id' => 'typesense_url',

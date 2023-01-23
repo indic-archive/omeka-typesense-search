@@ -132,6 +132,13 @@ class Module extends AbstractModule
         $indexProperties = $controller->params()->fromPost('index-properties', []);
         $settings->set('typesense_index_properties', $indexProperties);
 
+        // Set result formatting
+        $resultFormatting = $controller->params()->fromPost('typesense_search_result_format');
+        $settings->set('typesense_search_result_format', $resultFormatting);
+
+        $useTypesenseHighlight = $controller->params()->fromPost('typesense_search_result_format_fallback');
+        $settings->set('typesense_search_result_format_fallback', $useTypesenseHighlight);
+
         return true;
     }
 
@@ -165,6 +172,8 @@ class Module extends AbstractModule
             'data' => $data,
             'form' => $form,
             'indexProperties' => $data['typesense_index_properties'],
+            'resultFormatting' => $data['typesense_search_result_format'],
+            'useTypesenseHighlight' => $data['typesense_search_result_format_fallback'],
         ]);
     }
 }

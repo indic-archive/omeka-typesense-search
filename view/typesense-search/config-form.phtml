@@ -17,6 +17,25 @@ $dropIndexAction = $this->url('admin/drop-index', ['controller' => 'SearchContro
     <?php echo $this->propertySelector(); ?>
 </fieldset>
 
+<fieldset>
+    <legend>Formatting</legend>
+    <div class="field">
+        <div class="field-meta">
+            <label for="typesense_search_result_format_fallback">Use as fallback</label>
+        </div>
+        <div class="inputs">
+            <input id="typesense_search_result_format_fallback" type="checkbox" name="typesense_search_result_format_fallback" <?php if ($this->useTypesenseHighlight) echo "checked"; ?>>
+        </div>
+    </div>
+    <div class="field">
+        <div class="field-meta">
+            <label for="typesense_search_result_format">Result format</label>
+        </div>
+        <div class="inputs">
+            <input id="typesense_search_result_format" type="text" name="typesense_search_result_format" placeholder="{dcterms:title} ({dcterms:extends pages}) - {dcterms:author}" value="<?php echo $this->escapeHtml($this->resultFormatting); ?>" required="required">
+        </div>
+    </div>
+</fieldset>
 
 <fieldset>
     <legend>Actions</legend>

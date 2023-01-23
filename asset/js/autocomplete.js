@@ -258,46 +258,21 @@
   /**
    * Build the ui widget that shows the words under the search html input
    *
-   * @param {string} prefix - The letters written by the user in the html search input
    * @param {Array<string>} words - The list of words that must be painted inside the widget
    */
-  function _paintWords(prefix, hits) {
+  function _paintWords(results) {
     _flushWordsContainer.call(this);
     this._words = [];
     let docFrag = document.createDocumentFragment();
-    for (let i = 0; i < hits.length; i++) {
+    for (let i = 0; i < results.length; i++) {
       let wordElement = document.createElement("p");
       wordElement.className = "ac__word";
       wordElement.style.cursor = "pointer";
       let resultElement = document.createElement("span");
       resultElement.style.pointerEvents = "none";
-      resultElement.dataset.identifier = hits[i].document.dcterms_identifier[0];
+      resultElement.dataset.identifier = results[i].url;
 
-      let highlighted = "";
-      if (hits[i].highlights.length == 0) {
-        highlighted = hits[i].document.dcterms_title[0];
-      } else {
-        if (hits[i].highlights[0].snippet) {
-          highlighted = hits[i].highlights[0].snippet;
-        } else {
-          highlighted = hits[i].highlights[0].snippets[0];
-        }
-
-        highlighted = highlighted.replace(/<mark>/g, "<b>");
-        highlighted = highlighted.replace(/<\/mark>/g, "</b>");
-
-        let field = hits[i].highlights[0].field;
-        if (field !== "dcterms_title") {
-          field = field.replace("dcterms_", "");
-          field = field.charAt(0).toUpperCase() + field.slice(1);
-          highlighted = field + ": " + highlighted;
-          if (hits[i].document.dcterms_title.length > 0) {
-            highlighted =
-              hits[i].document.dcterms_title[0] + " | " + highlighted;
-          }
-        }
-      }
-
+      highlighted = results[i].text;
       highlighted = highlighted.trim();
       resultElement.innerHTML = highlighted;
 
@@ -330,9 +305,7 @@
             if (response.results.length == 0) {
               return;
             }
-            var query = response.results.request_params.q;
-            var hits = response.results.hits;
-            _paintWords.call(self, query, hits);
+            _paintWords.call(self, response.results);
           }
         }
       }
