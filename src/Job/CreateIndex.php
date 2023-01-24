@@ -24,6 +24,7 @@ class CreateIndex extends AbstractJob
 
         // Get the parameters passed to the job.
         $indexName = $this->getArg('index_name');
+        $indexProperties = $this->getArg('index_fields');
 
         $timeStart = microtime(true);
         $this->logger->info(new Message('Creating a new index #%s', $indexName));
@@ -43,7 +44,7 @@ class CreateIndex extends AbstractJob
             ]
         );
 
-        $indexProperties = $this->getArg('index_fields');
+        // Create index with the list of properties configured in module.
         $indexFields = [
             ['name' => 'resource_id', 'type' => 'string', "index" => true, "optional" => true]
         ];

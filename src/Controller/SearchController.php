@@ -111,85 +111,8 @@ class SearchController extends AbstractActionController
             ]);
         }
 
-        /**
-         * results
-         * {
-         *      {
-         *          "url": "/omeka/item/test-1",
-         *          "text": "Test <b>1</b>"
-         *      }
-         * }
-         */
-
-
-        $siteSlug = $this->params()->fromRoute('site-slug');
-        $url = $this->viewHelpers()->get('Url');
-
-        $searchResults = [];
-        foreach ($results['hits'] as $hit) {
-            $document = [];
-            // generate item url based on resource id.
-            $document["url"] = $url(
-                'site/resource-id',
-                [
-                    'site-slug' => $siteSlug,
-                    'controller' => 'item',
-                    'id' => $hit['document']['resource_id'],
-                ],
-                ['force_canonical' => false]
-            );
-            $document["text"] = "";
-
-            // add text from typesense response
-            // 1. If useTypesenseHighlights enabled, use highlights.
-            // 2. Otherwise, use the dublin core format specified in admin module.
-            $highlights = $hit["highlights"];
-            if ($this->useTypesenseHighlights && !empty($highlights)) {
-                // Use highlighted snippet if not empty
-                if (array_key_exists("snippet", $highlights[0])) {
-                    $document["text"] = $highlights[0]["snippet"];
-                } else if (array_key_exists("snippets", $highlights[0])) {
-                    if (!empty($highlights[0]["snippets"])) {
-                        $document["text"] = $highlights[0]["snippets"][0];
-                    }
-                }
-            } else if (!empty($hit["document"])) {
-                // Fallback to configurable formatting
-                // match contents inside brackets and replace it with fields from index
-                $re = '/\{(.*?)\}/m';
-                preg_match_all($re, $this->resultFormat, $matches);
-
-                if (!empty($matches)) {
-                    $data = $this->resultFormat;
-                    foreach ($matches[0] as $match) {
-                        $field = str_replace(["{", "}"], "", $match);
-                        $field = str_replace(":", "_", $field);
-
-                        if (isset($hit["document"][$field])) {
-                            if (!empty($hit["document"][$field])) {
-                                $data = str_replace($match, strval($hit["document"][$field][0]), $data);
-                            } else {
-                                // replace the unmatched dc terms with empty value
-                                $data = str_replace($match, "", $data);
-                            }
-                        }
-                    }
-
-                    $document["text"] = $data;
-                } else {
-                    $document["text"] = $hit["document"]["dcterms_title"][0];
-                }
-            }
-
-            // make the highlights bold
-            $document["text"] = str_replace("<mark>", "<b>", $document["text"]);
-            $document["text"] = str_replace("</mark>", "</b>", $document["text"]);
-
-            array_push($searchResults, $document);
-        }
-
         return new JsonModel([
-            'results' => $searchResults,
+            'results' => $this->_getFormattedSearchResults($results),
         ]);
     }
 
@@ -231,5 +154,83 @@ class SearchController extends AbstractActionController
         return new JsonModel([
             'message' => 'started reindexing',
         ]);
+    }
+
+    /**
+     * Format typesense results into list of objects with url, text
+     * @param array $results typesense results.
+     * @return array
+     */
+    protected function _getFormattedSearchResults(array $results)
+    {
+        $siteSlug = $this->params()->fromRoute('site-slug');
+        $url = $this->viewHelpers()->get('Url');
+
+        $searchResults = [];
+        foreach ($results['hits'] as $hit) {
+            $document = [];
+            // generate item url based on resource id.
+            $document["url"] = $url(
+                'site/resource-id',
+                [
+                    'site-slug' => $siteSlug,
+                    'controller' => 'item',
+                    'id' => $hit['document']['resource_id'],
+                ],
+                ['force_canonical' => false]
+            );
+            $document["text"] = "";
+
+            // add text from typesense response
+            // 1. If useTypesenseHighlights enabled, use highlights.
+            // 2. Otherwise, use the dublin core format specified in admin module.
+            $highlights = $hit["highlights"];
+            if ($this->useTypesenseHighlights && !empty($highlights)) {
+                // Use highlighted snippet if not empty (snippet/snippets)
+                if (array_key_exists("snippet", $highlights[0])) {
+                    $document["text"] = $highlights[0]["snippet"];
+                } else if (array_key_exists("snippets", $highlights[0])) {
+                    if (!empty($highlights[0]["snippets"])) {
+                        $document["text"] = $highlights[0]["snippets"][0];
+                    }
+                }
+            } else if (!empty($hit["document"])) {
+                // Fallback to configurable formatting
+                // match contents inside brackets and replace it with fields from index
+                $re = '/\{(.*?)\}/m';
+                preg_match_all($re, $this->resultFormat, $matches);
+
+                if (!empty($matches)) {
+                    $data = $this->resultFormat;
+                    foreach ($matches[0] as $match) {
+                        // remove brackets
+                        $field = str_replace(["{", "}"], "", $match);
+                        // change dcterms:title to dcterms_title (index field name)
+                        $field = str_replace(":", "_", $field);
+
+                        if (isset($hit["document"][$field])) {
+                            if (!empty($hit["document"][$field])) {
+                                $data = str_replace($match, strval($hit["document"][$field][0]), $data);
+                            } else {
+                                // replace the unmatched dc terms with empty value
+                                $data = str_replace($match, "", $data);
+                            }
+                        }
+                    }
+
+                    $document["text"] = $data;
+                } else {
+                    $document["text"] = $hit["document"]["dcterms_title"][0];
+                }
+            }
+
+            // make the highlights bold
+            $document["text"] = str_replace("<mark>", "<b>", $document["text"]);
+            $document["text"] = str_replace("</mark>", "</b>", $document["text"]);
+
+            array_push($searchResults, $document);
+        }
+
+        return $searchResults;
     }
 }

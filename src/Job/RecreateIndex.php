@@ -22,7 +22,13 @@ class RecreateIndex extends AbstractJob
         $this->logger = $services->get('Omeka\Logger');
         $settings = $services->get('Omeka\Settings');
 
+        // Get the parameters passed to the job.
+        $indexName = $this->getArg('index_name');
+        $indexProperties = $this->getArg('index_fields');
+
         $connection = $services->get('Omeka\Connection');
+
+        // Fetch all resources with its properties key, value flattened out.
         $sql = <<<'SQL'
 SELECT
     `value`.`resource_id` as `resource_id`,
@@ -46,8 +52,6 @@ GROUP BY
     `resource`.`id`;
 SQL;
         $results = $connection->fetchAll($sql);
-
-        $indexProperties = $this->getArg('index_fields');
 
         $documents = array();
         foreach ($results as $result) {
@@ -77,9 +81,6 @@ SQL;
 
         $this->logger->info(new Message('Fetched %s documents', count($documents)));
 
-        // Get the parameters passed to the job.
-        $indexName = $this->getArg('index_name');
-
         $timeStart = microtime(true);
         $this->logger->info(new Message('Started indexing items under #%s', $indexName));
 
@@ -107,6 +108,7 @@ SQL;
         }
 
 
+        // Create index with the list of properties configured in module.
         $indexFields = [
             ['name' => 'resource_id', 'type' => 'string', "index" => true, "optional" => true]
         ];
@@ -136,6 +138,7 @@ SQL;
             return;
         }
 
+        // import the documents into typesense index.
         try {
             $response = $client->collections[$indexName]->documents->import($documents, [
                 'action' => 'create',
