@@ -53,6 +53,16 @@
           _processOnKeyUp.bind(self),
           false
         );
+        // self._input.addEventListener(
+        //   "keydown",
+        //   _processOnKeyUp.bind(self),
+        //   false
+        // );
+        // self._input.addEventListener(
+        //   "keypress",
+        //   _processOnKeyUp.bind(self),
+        //   false
+        // );
         _buildWordsContainer.call(self);
         _bindClickListener.call(self);
       } else {
@@ -229,7 +239,6 @@
    */
   function _processOnKeyUp(evt) {
     let key = evt.keyCode || evt.which;
-    let char = String.fromCharCode(key);
     let self = this;
     if (key === 38) {
       if (self._idx > 0) {
@@ -247,7 +256,7 @@
       if (self._words.length && self._idx > -1)
         self._onSelectedCB(_getStringFromWordElement(self._words[self._idx]));
       else self._onSelectedCB(self._input.value);
-    } else if (/[a-zA-Z0-9-_ ]/.test(char) || key === 8) {
+    } else if (self._input.value || key === 8) {
       self._idx = -1;
       let prefix = encodeURIComponent(self._input.value);
       if (prefix != "") self._keyListenerDebounced(prefix);
