@@ -85,18 +85,23 @@ class SearchController extends AbstractActionController
         }
 
         // convert [dcterms:title,dcterms:alternative] => 'dcterms_title,dcterms_alternative'
+        // get weights by the order of property
         $result = array();
-        foreach ($this->indexProperties as $property) {
+        $weights = array();
+        $propertyCt = count($this->indexProperties);
+        foreach (array_values($this->indexProperties) as $i => $property) {
             $result[] = str_replace(':', '_', $property);
+            $weights[] = strval($propertyCt - $i);
         }
         $queryBy = implode(',', $result);
+        $queryByWeights = implode(',', $weights);
 
         try {
             $results = $this->client->collections[$this->indexName]->documents->search(
                 [
                     'q' => $searchQ,
                     'query_by' => $queryBy,
-                    //'query_by_weights' => '5,5,2,1,1,1',
+                    'query_by_weights' => $queryByWeights,
                     'highlight_full_fields' => 'dcterms_title',
                     'page' => 1,
                     'per_page' => 15,
