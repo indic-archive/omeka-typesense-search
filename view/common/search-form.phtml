@@ -4,7 +4,7 @@ $searchAction = $this->url('site/search', ['site-slug' => $siteSlug, 'controller
 ?>
 
 <!-- this overrides the default search -->
-<div class="twelve columns">
+<div>
     <form id="search-form" data-url="<?php echo $this->escapeHtml($searchAction); ?>" onsubmit="event.preventDefault();">
         <input class="search-text" type="text" autofocus>
         <button type="submit"><?php echo 'Search'; ?></button>

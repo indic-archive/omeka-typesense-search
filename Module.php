@@ -17,6 +17,9 @@ use Laminas\Mvc\Controller\AbstractController;
 use Laminas\View\Renderer\PhpRenderer;
 use Laminas\EventManager\SharedEventManagerInterface;
 use Omeka\Module\Exception\ModuleCannotInstallException;
+use Typesense\Client;
+use Symfony\Component\HttpClient\HttplugClient;
+use Omeka\Stdlib\Message;
 
 
 class Module extends AbstractModule
@@ -53,11 +56,100 @@ class Module extends AbstractModule
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager)
     {
+        // add search assets
         $sharedEventManager->attach(
             '*',
             'view.layout',
             [$this, 'addSearchAssets']
         );
+
+        // add listeners for add/update/delete
+        $sharedEventManager->attach(
+            \Omeka\Api\Adapter\ItemAdapter::class,
+            'api.create.post',
+            [$this, 'updateSearchIndex']
+        );
+        $sharedEventManager->attach(
+            \Omeka\Api\Adapter\ItemAdapter::class,
+            'api.update.post',
+            [$this, 'updateSearchIndex']
+        );
+        $sharedEventManager->attach(
+            \Omeka\Api\Adapter\ItemAdapter::class,
+            'api.delete.post',
+            [$this, 'updateSearchIndex']
+        );
+    }
+
+    public function updateSearchIndex(Event $event): void
+    {
+        $serviceLocator = $this->getServiceLocator();
+        $api = $serviceLocator->get('Omeka\ApiManager');
+        $settings = $serviceLocator->get('Omeka\Settings');
+        $logger = $serviceLocator->get('Omeka\Logger');
+
+        $urlParts = parse_url($settings->get('typesense_url'));
+        $indexName = $settings->get('typesense_search_index');
+        $indexProperties = $settings->get('typesense_index_properties');
+        $client = new Client(
+            [
+                'api_key' => $settings->get('typesense_api_key'),
+                'nodes' => [
+                    [
+                        'host' => $urlParts['host'],
+                        'port' => $urlParts['port'],
+                        'protocol' => $urlParts['scheme'],
+                    ],
+                ],
+                'client' => new HttplugClient(),
+            ]
+        );
+
+        $request = $event->getParam('request');
+        $response = $event->getParam('response');
+
+        if ($request->getOperation() == 'create' || $request->getOperation() == 'update') {
+            $updated = $response->getContent();
+            $document = [
+                'resource_id' => strval($updated->getId()),
+            ];
+
+            foreach ($indexProperties as $property) {
+                $fieldName = str_replace(":", "_", $property);
+                $document[$fieldName] = [];
+            }
+
+            foreach ($updated->getValues() as $value) {
+                $p = $value->getProperty();
+                $fieldName = $p->getVocabulary()->getPrefix() . "_" . $p->getLocalName();
+                $fieldValue = $value->getValue();
+
+                if (!array_key_exists($fieldName, $document)) {
+                    continue;
+                }
+
+                array_push($document[$fieldName], strval($fieldValue));
+            }
+
+            try {
+                $response = $client->collections[$indexName]->documents->upsert($document);
+            } catch (\Exception $e) {
+                $logger->err(new Message('Error upserting resource(#%s) to index #%s, err: %s', $updated->getId(), $indexName, $e->getMessage()));
+                return;
+            }
+
+            $logger->info(new Message('Upserted resource(#%s) to index #%s', $updated->getId(), $indexName));
+        } else if ($request->getOperation() == 'delete') {
+            $id = $request->getId();
+
+            try {
+                $response = $client->collections[$indexName]->documents->delete(['filter_by' => 'resource_id:' . $id]);
+            } catch (\Exception $e) {
+                $logger->err(new Message('Error deleting resource(#%s) from index #%s, err: %s', $id, $indexName, $e->getMessage()));
+                return;
+            }
+            $logger->info(new Message('Deleted resource(#%s) from index #%s', $id, $indexName));
+        }
     }
 
     /**
