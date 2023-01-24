@@ -136,9 +136,6 @@ class Module extends AbstractModule
         $resultFormatting = $controller->params()->fromPost('typesense_search_result_format');
         $settings->set('typesense_search_result_format', $resultFormatting);
 
-        $useTypesenseHighlight = $controller->params()->fromPost('typesense_search_override_highlights');
-        $settings->set('typesense_search_override_highlights', $useTypesenseHighlight);
-
         return true;
     }
 
@@ -173,7 +170,6 @@ class Module extends AbstractModule
             'form' => $form,
             'indexProperties' => $data['typesense_index_properties'],
             'resultFormatting' => $data['typesense_search_result_format'],
-            'useTypesenseHighlight' => $data['typesense_search_override_highlights'],
         ]);
     }
 }

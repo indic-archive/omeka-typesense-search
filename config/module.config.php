@@ -111,7 +111,6 @@ return [
             'typesense_search_index' => null,
             'typesense_index_properties' => [],
             'typesense_search_result_format' => '',
-            'typesense_search_override_highlights' => '',
         ],
     ],
 ];

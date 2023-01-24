@@ -21,14 +21,6 @@ $dropIndexAction = $this->url('admin/drop-index', ['controller' => 'SearchContro
     <legend>Formatting</legend>
     <div class="field">
         <div class="field-meta">
-            <label for="typesense_search_override_highlights">Use typesense highlight</label>
-        </div>
-        <div class="inputs">
-            <input id="typesense_search_override_highlights" type="checkbox" name="typesense_search_override_highlights" <?php if ($this->useTypesenseHighlight) echo "checked"; ?>>
-        </div>
-    </div>
-    <div class="field">
-        <div class="field-meta">
             <label for="typesense_search_result_format">Result format</label>
         </div>
         <div class="inputs">

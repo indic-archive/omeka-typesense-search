@@ -42,11 +42,6 @@ class SearchController extends AbstractActionController
     protected $resultFormat;
 
     /**
-     * @var boolean
-     */
-    protected $useTypesenseHighlights;
-
-    /**
      * @param array $parameters typesense configurations.
      */
     public function __construct(Logger $logger, array $parameters)
@@ -68,7 +63,6 @@ class SearchController extends AbstractActionController
         $this->indexName = $parameters['search_index'];
         $this->indexProperties = $parameters['index_properties'];
         $this->resultFormat = $parameters['search_result_formatting'];
-        $this->useTypesenseHighlights = $parameters['use_typesense_highlights'];
     }
 
     /**
@@ -171,6 +165,21 @@ class SearchController extends AbstractActionController
         $siteSlug = $this->params()->fromRoute('site-slug');
         $url = $this->viewHelpers()->get('Url');
 
+        // match contents inside brackets and replace it with fields from index
+        $re = '/\{(.*?)\}/m';
+        preg_match_all($re, $this->resultFormat, $matches);
+        $formatFields = array();
+        if (!empty($matches)) {
+            foreach ($matches[0] as $match) {
+                // remove brackets
+                $field = str_replace(["{", "}"], "", $match);
+                // change dcterms:title to dcterms_title (index field name)
+                $field = str_replace(":", "_", $field);
+
+                array_push($formatFields, $field);
+            }
+        }
+
         $searchResults = [];
         foreach ($results['hits'] as $hit) {
             $document = [];
@@ -186,48 +195,56 @@ class SearchController extends AbstractActionController
             );
             $document["text"] = "";
 
-            // add text from typesense response
-            // 1. If useTypesenseHighlights enabled, use highlights.
-            // 2. Otherwise, use the dublin core format specified in admin module.
-            $highlights = $hit["highlights"];
-            if ($this->useTypesenseHighlights && !empty($highlights)) {
-                // Use highlighted snippet if not empty (snippet/snippets)
-                if (array_key_exists("snippet", $highlights[0])) {
-                    $document["text"] = $highlights[0]["snippet"];
-                } else if (array_key_exists("snippets", $highlights[0])) {
-                    if (!empty($highlights[0]["snippets"])) {
-                        $document["text"] = $highlights[0]["snippets"][0];
-                    }
-                }
-            } else if (!empty($hit["document"])) {
-                // Fallback to configurable formatting
-                // match contents inside brackets and replace it with fields from index
-                $re = '/\{(.*?)\}/m';
-                preg_match_all($re, $this->resultFormat, $matches);
-
-                if (!empty($matches)) {
-                    $data = $this->resultFormat;
-                    foreach ($matches[0] as $match) {
-                        // remove brackets
-                        $field = str_replace(["{", "}"], "", $match);
-                        // change dcterms:title to dcterms_title (index field name)
-                        $field = str_replace(":", "_", $field);
-
-                        if (isset($hit["document"][$field])) {
-                            if (!empty($hit["document"][$field])) {
-                                $data = str_replace($match, strval($hit["document"][$field][0]), $data);
-                            } else {
-                                // replace the unmatched dc terms with empty value
-                                $data = str_replace($match, "", $data);
-                            }
+            // get a associative array of all matched fields present in the highlight / document
+            $matchedFields = [];
+            if (!empty($hit["highlights"])) {
+                foreach ($hit["highlights"] as $highlight) {
+                    if (in_array($highlight["field"], $formatFields)) {
+                        if (array_key_exists("snippet", $highlight)) {
+                            $matchedFields[$highlight["field"]] =  $highlight["snippet"];
+                        } else if (array_key_exists("snippets", $highlight)) {
+                            $matchedFields[$highlight["field"]] =  $highlight["snippets"][0];
                         }
                     }
-
-                    $document["text"] = $data;
-                } else {
-                    $document["text"] = $hit["document"]["dcterms_title"][0];
                 }
             }
+
+            // fill the rest of the fields from document object.
+            if (count($matchedFields) != count($formatFields) && !empty($hit["document"])) {
+                // fallback to document fields
+                foreach ($hit["document"] as $k => $v) {
+                    if (array_key_exists($k, $matchedFields)) {
+                        continue;
+                    }
+
+                    if (is_array($v) && !empty($v)) {
+                        $matchedFields[$k] = strval($v[0]);
+                    } else if (!is_array($v)) {
+                        $matchedFields[$k] = strval($v);
+                    }
+                }
+            }
+
+            // replace the formatted string with the matched fields
+            if (!empty($matches)) {
+                $data = $this->resultFormat;
+                foreach ($matches[0] as $match) {
+                    // remove brackets
+                    $field = str_replace(["{", "}"], "", $match);
+                    // change dcterms:title to dcterms_title (index field name)
+                    $field = str_replace(":", "_", $field);
+
+                    if (isset($matchedFields[$field])) {
+                        $data = str_replace($match, $matchedFields[$field], $data);
+                    } else {
+                        $data = str_replace($match, "", $data);
+                    }
+                }
+                $document["text"] = $data;
+            } else {
+                $document["text"] = $hit["document"]["dcterms_title"][0];
+            }
+
 
             // make the highlights bold
             $document["text"] = str_replace("<mark>", "<b>", $document["text"]);
