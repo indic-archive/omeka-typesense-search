@@ -31,12 +31,10 @@ Search-as-you-type is now automatically hooked on to the search box on the Omeka
 ## Screenshot
 
 - Search
-<br>
-![search](https://raw.githubusercontent.com/indic-archive/omeka-typesense-search/master/screenshots/search.gif)
+![](screenshots/search.gif)
 
 - Admin
-<br>
-![configure](https://raw.githubusercontent.com/indic-archive/omeka-typesense-search/master/screenshots/configure.png)
+![](screenshots/configure.png)
 
 ## Credits
 autocomplete.js is a modified version of [caroso1222/amazon-autocomplete](https://github.com/caroso1222/amazon-autocomplete)
