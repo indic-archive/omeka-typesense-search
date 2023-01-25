@@ -18,7 +18,9 @@ $dropIndexAction = $this->url('admin/drop-index', ['controller' => 'SearchContro
 </fieldset>
 
 <fieldset>
-    <legend>Formatting</legend>
+    <legend>Results</legend>
+    The format for composing the results displayed in the searchbox on the frontend. Only the fields selected above for indexing can be displayed in the results.
+    <br /><br />
     <div class="field">
         <div class="field-meta">
             <label for="typesense_search_result_format">Result format</label>
@@ -30,10 +32,10 @@ $dropIndexAction = $this->url('admin/drop-index', ['controller' => 'SearchContro
 </fieldset>
 
 <fieldset>
-    <legend>Actions</legend>
+    <legend>Bulk actions</legend>
     <div class="search-opts">
         <button type="button" data-url="<?php echo $createIndexAction; ?>" class="index-btn">Create index</button>
         <button type="button" data-url="<?php echo $dropIndexAction; ?>" class="index-btn">Drop index</button>
-        <button type="button" data-url="<?php echo $recreateIndexAction; ?>" class="index-btn">Start reindex</button>
+        <button type="button" data-url="<?php echo $recreateIndexAction; ?>" class="index-btn">R-eindex all items</button>
     </div>
 </fieldset>
