@@ -99,14 +99,23 @@ SQL;
             ]
         );
 
-        // recreate the index
+        // retrieve collection
+        $hasCollection = true;
         try {
-            $client->collections[$indexName]->delete();
+            $collection = $client->collections[$indexName]->retrieve();
         } catch (\Exception $e) {
-            $this->logger->err(new Message('Error deleting index #%s, err: %s', $indexName, $e->getMessage()));
-            return;
+            $this->logger->err(new Message('Error fetching index #%s. Skipping delete, err: %s', $indexName, $e->getMessage()));
+            $hasCollection = false;
         }
 
+        // check if the collection exists and delete it.
+        if ($hasCollection && $collection["name"] == $indexName) {
+            try {
+                $client->collections[$indexName]->delete();
+            } catch (\Exception $e) {
+                $this->logger->err(new Message('Error deleting index #%s, err: %s', $indexName, $e->getMessage()));
+            }
+        }
 
         // Create index with the list of properties configured in module.
         $indexFields = [
@@ -128,7 +137,7 @@ SQL;
         try {
             $client->collections->create(
                 [
-                    'name' => 'books',
+                    'name' => $indexName,
                     'fields' => $indexFields,
                     'token_separators' => ['-'],
                 ]

@@ -214,6 +214,8 @@ class Module extends AbstractModule
         $params = $form->getData();
 
         $settings = $services->get('Omeka\Settings');
+        $prevIndexName = $settings->get('typesense_search_index');
+
         $defaultSettings = $config[$space]['config'];
         $params = array_intersect_key($params, $defaultSettings);
         foreach ($params as $name => $value) {
@@ -227,6 +229,23 @@ class Module extends AbstractModule
         // Set result formatting
         $resultFormatting = $controller->params()->fromPost('typesense_search_result_format');
         $settings->set('typesense_search_result_format', $resultFormatting);
+
+        // Get job dispatcher.
+        $curIndexName = $settings->get('typesense_search_index');
+        $dispatcher = $services->get('Omeka\Job\Dispatcher');
+
+        // Index name changed, delete older one.
+        if ($prevIndexName != $curIndexName) {
+            $jobArgs = [];
+            $jobArgs["index_name"] = $prevIndexName;
+            $dispatcher->dispatch(\TypesenseSearch\Job\DeleteIndex::class, $jobArgs);
+        }
+
+        // Create a new index
+        $jobArgs = [];
+        $jobArgs["index_name"] = $curIndexName;
+        $jobArgs["index_fields"] = $indexProperties;
+        $dispatcher->dispatch(\TypesenseSearch\Job\CreateIndex::class, $jobArgs);
 
         return true;
     }

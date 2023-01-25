@@ -3,7 +3,6 @@ $this->headScript()->appendFile($this->assetUrl('js/index-properties.js', 'Types
 $this->headLink()->appendStylesheet($this->assetUrl('css/index-properties.css', 'TypesenseSearch'));
 
 $recreateIndexAction = $this->url('admin/recreate-index', ['controller' => 'SearchController', 'action' => 'recreateIndex'], true);
-$createIndexAction = $this->url('admin/create-index', ['controller' => 'SearchController', 'action' => 'createIndex'], true);
 $dropIndexAction = $this->url('admin/drop-index', ['controller' => 'SearchController', 'action' => 'dropIndex'], true);
 ?>
 
@@ -34,7 +33,6 @@ $dropIndexAction = $this->url('admin/drop-index', ['controller' => 'SearchContro
 <fieldset>
     <legend>Bulk actions</legend>
     <div class="search-opts">
-        <button type="button" data-url="<?php echo $createIndexAction; ?>" class="index-btn">Create index</button>
         <button type="button" data-url="<?php echo $dropIndexAction; ?>" class="index-btn">Drop index</button>
         <button type="button" data-url="<?php echo $recreateIndexAction; ?>" class="index-btn">R-eindex all items</button>
     </div>

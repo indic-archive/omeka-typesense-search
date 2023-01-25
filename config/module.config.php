@@ -28,17 +28,6 @@ return [
         'routes' => [
             'admin' => [
                 'child_routes' => [
-                    'create-index' => [
-                        'type' => Literal::class,
-                        'options' => [
-                            'route' => '/search-index/create',
-                            'defaults' => [
-                                '__NAMESPACE__' => 'TypesenseSearch\Controller',
-                                'controller' => Controller\SearchController::class,
-                                'action' => 'createIndex',
-                            ],
-                        ],
-                    ],
                     'drop-index' => [
                         'type' => Literal::class,
                         'options' => [

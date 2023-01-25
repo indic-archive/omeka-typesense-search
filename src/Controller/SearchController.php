@@ -117,29 +117,12 @@ class SearchController extends AbstractActionController
 
     public function dropIndexAction()
     {
-        try {
-            $this->client->collections[$this->indexName]->delete();
-        } catch (\Exception $e) {
-            //$this->logger->err(new Message('Error deleting index #%s, err: %s', $this->indexName, $e->getMessage()));
-            return new JsonModel([
-                'message' => 'error deleting index',
-            ]);
-        }
+        $jobArgs = [];
+        $jobArgs["index_name"] = $this->indexName;
+        $this->jobDispatcher()->dispatch(\TypesenseSearch\Job\DeleteIndex::class, $jobArgs);
 
         return new JsonModel([
             'message' => 'index dropped',
-        ]);
-    }
-
-    public function createIndexAction()
-    {
-        $jobArgs = [];
-        $jobArgs["index_name"] = $this->indexName;
-        $jobArgs["index_fields"] = $this->indexProperties;
-        $this->jobDispatcher()->dispatch(\TypesenseSearch\Job\CreateIndex::class, $jobArgs);
-
-        return new JsonModel([
-            'message' => 'index created',
         ]);
     }
 

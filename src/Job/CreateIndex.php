@@ -44,6 +44,21 @@ class CreateIndex extends AbstractJob
             ]
         );
 
+        // retrieve collection
+        $hasCollection = true;
+        try {
+            $collection = $client->collections[$indexName]->retrieve();
+        } catch (\Exception $e) {
+            $this->logger->err(new Message('Error creating index #%s, err: %s', $indexName, $e->getMessage()));
+            $hasCollection = false;
+        }
+
+        // check if the collection exists.
+        if ($hasCollection && $collection["name"] == $indexName) {
+            $this->logger->info(new Message('Index #%s already exists', $indexName));
+            return;
+        }
+
         // Create index with the list of properties configured in module.
         $indexFields = [
             ['name' => 'resource_id', 'type' => 'string', "index" => true, "optional" => true]
@@ -65,7 +80,7 @@ class CreateIndex extends AbstractJob
         try {
             $client->collections->create(
                 [
-                    'name' => 'books',
+                    'name' => $indexName,
                     'fields' => $indexFields,
                     'token_separators' => ['-'],
                 ]
