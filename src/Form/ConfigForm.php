@@ -40,7 +40,7 @@ class ConfigForm extends Form
                 'type' => Element\Text::class,
                 'name' => 'typesense_search_index',
                 'options' => [
-                    'label' => 'Typesense Search Index',
+                    'label' => 'Typesense index name (eg: items)',
                 ],
                 'attributes' => [
                     'id' => 'typesense_search_index',
