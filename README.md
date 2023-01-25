@@ -28,5 +28,15 @@ docker run -p 8108:8108 -v/tmp/data:/data typesense/typesense:0.23.1 --data-dir 
 
 Search-as-you-type is now automatically hooked on to the search box on the Omeka S frontend.
 
+## Screenshot
+
+- Search
+<br>
+![configure](screenshots/search.gif)
+
+- Admin
+<br>
+![configure](screenshots/configure.png)
+
 ## Credits
 autocomplete.js is a modified version of [caroso1222/amazon-autocomplete](https://github.com/caroso1222/amazon-autocomplete)
