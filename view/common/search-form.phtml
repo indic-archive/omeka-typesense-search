@@ -1,11 +1,12 @@
 <?php
 $siteSlug = $this->params()->fromRoute('site-slug');
 $searchAction = $this->url('site/search', ['site-slug' => $siteSlug, 'controller' => 'SearchController', 'action' => 'search'], false);
+$resultsAction = $this->url('site/results', ['site-slug' => $siteSlug, 'controller' => 'SearchController', 'action' => 'results'], false);
 ?>
 
 <!-- this overrides the default search -->
 <div>
-    <form id="search-form" data-url="<?php echo $this->escapeHtml($searchAction); ?>" onsubmit="event.preventDefault();">
+    <form id="search-form" data-url="<?php echo $this->escapeHtml($searchAction); ?>" data-results-url="<?php echo $this->escapeHtml($resultsAction); ?>" onsubmit="event.preventDefault();">
         <input class="search-text" type="text" autofocus>
         <button type="submit"><?php echo 'Search'; ?></button>
     </form>

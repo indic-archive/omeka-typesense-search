@@ -10,6 +10,7 @@ use Laminas\Mvc\Controller\AbstractActionController;
 use Omeka\Stdlib\Message;
 use Laminas\Log\Logger;
 use Laminas\View\Model\JsonModel;
+use Laminas\View\Model\ViewModel;
 
 /**
  * Controller for search action that returns a json response.
@@ -112,6 +113,60 @@ class SearchController extends AbstractActionController
 
         return new JsonModel([
             'results' => $this->_getFormattedSearchResults($results),
+        ]);
+    }
+
+    public function resultsAction()
+    {
+        $searchQ = $this->params()->fromQuery('query');
+
+        if ($searchQ == "*") {
+            return new ViewModel([
+                'items' => [],
+            ]);
+        }
+
+        // convert [dcterms:title,dcterms:alternative] => 'dcterms_title,dcterms_alternative'
+        // get weights by the order of property
+        $result = array();
+        $weights = array();
+        $propertyCt = count($this->indexProperties);
+        foreach (array_values($this->indexProperties) as $i => $property) {
+            $result[] = str_replace(':', '_', $property);
+            $weights[] = strval($propertyCt - $i);
+        }
+        $queryBy = implode(',', $result);
+        $queryByWeights = implode(',', $weights);
+
+        try {
+            $results = $this->client->collections[$this->indexName]->documents->search(
+                [
+                    'q' => $searchQ,
+                    'query_by' => $queryBy,
+                    'query_by_weights' => $queryByWeights,
+                    'highlight_full_fields' => 'dcterms_title',
+                    'page' => 1,
+                    'per_page' => 15,
+                    'infix' => 'fallback',
+                    //'sort_by' => 'dcterms_issued:desc',
+                ],
+            );
+        } catch (\Exception $e) {
+            //$this->logger->err(new Message('Error searching index #%s, err: %s', $this->indexName, $e->getMessage()));
+            return new ViewModel([
+                'items' => [],
+            ]);
+        }
+
+        // collect ids from search results and read the resource
+        $ids = array();
+        foreach ($results['hits'] as $hit) {
+            array_push($ids, (int)$hit['document']['resource_id']);
+        }
+        $results = $this->api()->search('items', ['id' => $ids]);
+
+        return new ViewModel([
+            'items' => $results->getContent(),
         ]);
     }
 

@@ -80,6 +80,17 @@ return [
                                 'action'     => 'search',
                             ],
                         ],
+                    ],
+                    'results' => [
+                        'type' => Literal::class,
+                        'options' => [
+                            'route' => '/search-results',
+                            'defaults' => [
+                                '__NAMESPACE__' => 'TypesenseSearch\Controller',
+                                'controller' => Controller\SearchController::class,
+                                'action'     => 'results',
+                            ],
+                        ],
                     ]
                 ]
             ],
