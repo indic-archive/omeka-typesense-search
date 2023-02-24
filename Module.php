@@ -110,6 +110,11 @@ class Module extends AbstractModule
 
         if ($request->getOperation() == 'create' || $request->getOperation() == 'update') {
             $updated = $response->getContent();
+
+            // skip private items
+            if (!$updated->isPublic()) {
+                return;
+            }
             $document = [
                 'resource_id' => strval($updated->getId()),
             ];
