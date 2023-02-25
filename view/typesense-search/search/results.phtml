@@ -1,0 +1,34 @@
+<?php
+$siteSlug = $this->params()->fromRoute('site-slug');
+
+$translate = $this->plugin('translate');
+$escape = $this->plugin('escapeHtml');
+$hyperlink = $this->plugin('hyperlink');
+$assetUrl = $this->plugin('assetUrl');
+$thumbnail = $this->plugin('thumbnail');
+$filterLocale = (bool) $this->siteSetting('filter_locale_values');
+$lang = $this->lang();
+
+$defaultThumbnail = '<img src="' . $assetUrl('thumbnails/default.png', 'Omeka', true) . '" title="' . $translate('No media') . '"/>';
+?>
+<div class="item-set-items">
+<ul class="resource-list">
+<?php
+$headingTerm = $this->siteSetting('browse_heading_property_term');
+$bodyTerm = $this->siteSetting('browse_body_property_term');
+foreach ($items as $item):
+    $heading = $headingTerm ? $item->value($headingTerm, ['default' => $translate('[Untitled]'), 'lang' => ($filterLocale ? [$lang, ''] : null)]) : $item->displayTitle(null, ($filterLocale ? [$lang, ''] : null));
+    $body = $bodyTerm ? $item->value($bodyTerm, ['lang' => ($filterLocale ? [$lang, ''] : null)]) : $item->displayDescription(null, ($filterLocale ? [$lang, ''] : null));
+    $resourceUrl = $item->siteUrl($siteSlug);
+    $resourceThumbnail = $thumbnail($item, 'medium') ?: $defaultThumbnail;
+?>
+    <li class="item resource">
+        <?= $hyperlink->raw($resourceThumbnail, $resourceUrl, ['class' => 'resource-link']) ?>
+        <h4><?php echo $item->link($heading); ?></h4>
+        <?php if ($body): ?>
+        <div class="description"><?php echo $escape($body); ?></div>
+        <?php endif; ?>
+    </li>
+<?php endforeach; ?>
+</ul>
+</div>

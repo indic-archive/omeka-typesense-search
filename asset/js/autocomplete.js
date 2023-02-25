@@ -253,9 +253,12 @@
       }
       self._words[self._idx].className += " ac__word--selected";
     } else if (key == 13) {
-      if (self._words.length && self._idx > -1)
+      if (self._words.length && self._idx > -1) {
         self._onSelectedCB(_getStringFromWordElement(self._words[self._idx]));
-      else self._onSelectedCB(self._input.value);
+      } else {
+        var url = document.querySelector("#search-form").dataset.resultsUrl;
+        self._onSelectedCB(url + "?query=" + self._input.value);
+      }
     } else if (self._input.value || key === 8) {
       self._idx = -1;
       let prefix = encodeURIComponent(self._input.value);
