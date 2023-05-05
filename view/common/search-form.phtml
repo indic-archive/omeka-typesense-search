@@ -8,6 +8,6 @@ $resultsAction = $this->url('site/results', ['site-slug' => $siteSlug, 'controll
 <div>
     <form id="search-form" data-url="<?php echo $this->escapeHtml($searchAction); ?>" data-results-url="<?php echo $this->escapeHtml($resultsAction); ?>" onsubmit="event.preventDefault();">
         <input class="search-text" type="text" autofocus>
-        <button type="submit"><?php echo 'Search'; ?></button>
+        <button class="fa" type="submit"><?php echo 'Search'; ?></button>
     </form>
 </div>
