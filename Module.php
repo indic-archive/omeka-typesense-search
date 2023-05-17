@@ -137,13 +137,13 @@ class Module extends AbstractModule
             }
 
             try {
-                $response = $client->collections[$indexName]->documents->upsert($document);
+                $response = $client->collections[$indexName]->documents[$updated->getId()]->update($document);
             } catch (\Exception $e) {
-                $logger->err(new Message('Error upserting resource(#%s) to index #%s, err: %s', $updated->getId(), $indexName, $e->getMessage()));
+                $logger->err(new Message('Error updating resource(#%s) to index #%s, err: %s', $updated->getId(), $indexName, $e->getMessage()));
                 return;
             }
 
-            $logger->info(new Message('Upserted resource(#%s) to index #%s', $updated->getId(), $indexName));
+            $logger->info(new Message('Updated resource(#%s) to index #%s', $updated->getId(), $indexName));
         } else if ($request->getOperation() == 'delete') {
             $id = $request->getId();
 
