@@ -49,37 +49,8 @@ WHERE
     `resource`.`resource_type` = 'Omeka\\Entity\\Item'
     AND `resource`.`is_public` = true
 GROUP BY
-    `resource`.`id`;
+    `resource`.`id`
 SQL;
-        $results = $connection->fetchAll($sql);
-
-        $documents = array();
-        foreach ($results as $result) {
-            $fields = explode('|', $result['fields']);
-            $values = explode('|', $result['values']);
-
-            // Add defaults index properties
-            $document = [
-                'resource_id' => strval($result['resource_id']),
-            ];
-
-            foreach ($indexProperties as $property) {
-                $fieldName = str_replace(":", "_", $property);
-                $document[$fieldName] = [];
-            }
-
-            foreach (array_combine($fields, $values) as $key => $value) {
-                if (!array_key_exists($key, $document)) {
-                    continue;
-                }
-
-                array_push($document[$key], $value);
-            }
-
-            array_push($documents, $document);
-        }
-
-        $this->logger->info(new Message('Fetched %s documents', count($documents)));
 
         $timeStart = microtime(true);
         $this->logger->info(new Message('Started indexing items under #%s', $indexName));
@@ -147,19 +118,68 @@ SQL;
             return;
         }
 
-        // import the documents into typesense index.
-        try {
-            $response = $client->collections[$indexName]->documents->import($documents, [
-                'action' => 'create',
-            ]);
-        } catch (\Exception $e) {
-            $this->logger->err(new Message('Error importing documents to index #%s, err: %s', $indexName, $e->getMessage()));
-            return;
-        }
 
-        // count the number of success
-        $successes = array_column($response, "success");
-        $count = count(array_keys($successes, 1));
+        $batchSize = 1000;
+        $totalDocuments = 0;
+        $count = 0;
+        do {
+            $sqlBatch = $sql . " LIMIT $batchSize OFFSET $totalDocuments;";
+
+            $results = $connection->fetchAll($sqlBatch);
+
+            $batchDocuments = array();
+            foreach ($results as $result) {
+                $fields = explode('|', $result['fields']);
+                $values = explode('|', $result['values']);
+
+                // Add defaults index properties
+                $document = [
+                    'resource_id' => strval($result['resource_id']),
+                ];
+
+                foreach ($indexProperties as $property) {
+                    $fieldName = str_replace(":", "_", $property);
+                    $document[$fieldName] = [];
+                }
+
+                for ($i = 0, $len = count($fields); $i < $len; $i++) {
+                    $key = $fields[$i];
+                    $value = $values[$i];
+
+                    // Skip if the key doesn't exist in the document
+                    if (!array_key_exists($key, $document)) {
+                        continue;
+                    }
+
+                    array_push($document[$key], $value);
+                }
+
+                array_push($batchDocuments, $document);
+            }
+
+            $totalBatchDocuments = count($batchDocuments);
+            $totalDocuments += $totalBatchDocuments;
+
+            $this->logger->info(new Message('Fetched %s documents', count($batchDocuments)));
+
+
+            // import the documents into typesense index.
+            try {
+                $response = $client->collections[$indexName]->documents->import($batchDocuments, [
+                    'action' => 'create',
+                ]);
+            } catch (\Exception $e) {
+                $this->logger->err(new Message('Error importing documents to index #%s, err: %s', $indexName, $e->getMessage()));
+                return;
+            }
+            $this->logger->info(new Message('Finished above.'));
+
+            // count the number of success
+            $successes = array_column($response, "success");
+            $count += count(array_keys($successes, 1));
+        } while ($totalBatchDocuments === $batchSize);
+        $this->logger->info(new Message('Finished indexing.'));
+
 
         $timeTotal = (int) (microtime(true) - $timeStart);
         $this->logger->info(new Message('Finished indexing. Count(%s), Elapsed %s seconds', $count, $timeTotal));
