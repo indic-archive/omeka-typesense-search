@@ -178,8 +178,6 @@ SQL;
             $successes = array_column($response, "success");
             $count += count(array_keys($successes, 1));
         } while ($totalBatchDocuments === $batchSize);
-        $this->logger->info(new Message('Finished indexing.'));
-
 
         $timeTotal = (int) (microtime(true) - $timeStart);
         $this->logger->info(new Message('Finished indexing. Count(%s), Elapsed %s seconds', $count, $timeTotal));
